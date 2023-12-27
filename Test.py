@@ -1,25 +1,33 @@
 import tkinter as tk
 
-def create_additional_window(root):
-    additional_window = tk.Toplevel(root)
 
-    # Set tool window attribute to hide maximize and minimize buttons
-    additional_window.attributes('-toolwindow', 1)
+def open_toplevel():
+    # Create a new Toplevel window
+    toplevel = tk.Toplevel(root)
 
-    additional_window.geometry("300x150")
-    additional_window.configure(bg="#FFFFFF")
+    # Set the title and geometry of the Toplevel window
+    toplevel.title("Toplevel Window")
+    toplevel.geometry("300x200")
 
-    # Your window content here
+    # Create a button in the Toplevel window
+    close_button = tk.Button(toplevel, text="Close Toplevel", command=lambda: close_toplevel(toplevel))
+    close_button.pack(pady=20)
 
-    additional_window.resizable(False, False)
-    additional_window.mainloop()
 
-# Example usage
+def close_toplevel(toplevel):
+    # Close the Toplevel window
+    toplevel.destroy()
+
+    # Focus back on the main Tkinter window
+    root.deiconify()
+
+
+# Create the main Tkinter window
 root = tk.Tk()
-root.geometry("400x200")
-root.title("Main Window")
 
-# Call the function from the other file and pass the Tkinter instance
-create_additional_window(root)
+# Create a button in the main window to open the Toplevel window
+open_button = tk.Button(root, text="Open Toplevel", command=open_toplevel)
+open_button.pack(pady=20)
 
+# Run the Tkinter event loop
 root.mainloop()

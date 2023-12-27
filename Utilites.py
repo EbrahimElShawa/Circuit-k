@@ -13,13 +13,7 @@ def add_fields(window):
     global widgets_sets_count, widgets_set
 
     if widgets_sets_count >= 12:
-        pop_up = tk.Tk()
-        pop_up.geometry("155x100")
-        pop_up_message = tk.Label(pop_up, text="Maximum components \nreached.")
-        pop_up_message.place(x=15, y=30)
-
-        pop_up.resizable(False, False)
-        pop_up.mainloop()
+        Secondary_Interfaces.pop_up_window(window)
         return
 
     if not widgets_set:

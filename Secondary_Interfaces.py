@@ -14,7 +14,6 @@ def set_values_window(window, component_name):
         values_window = tk.Toplevel(window)
         values_window.title("Set Value")
         values_window.geometry("300x128")
-        values_window.configure(bg="#FFFFFF")
         values_window.iconbitmap(frame1_path + "AC_Power.ico")
         canvas = tk.Canvas(values_window, bg="#FFFFFF", height=150, width=300, bd=0)
         canvas.place(x=0, y=0)
@@ -57,7 +56,6 @@ def set_values_window(window, component_name):
         frame2_path = ASSETS_PATH + "\\frame2\\"
         values_window = tk.Toplevel(window)
         values_window.geometry("230x100")
-        values_window.configure(bg="#FFFFFF")
         values_window.title("Set Value")
         values_window.iconbitmap(frame2_path + "DC.ico")
         canvas = tk.Canvas(values_window, bg="#FFFFFF", height=100, width=230, bd=0)
@@ -77,6 +75,26 @@ def set_values_window(window, component_name):
 
         values_window.resizable(False, False)
         values_window.mainloop()
+
+
+def pop_up_window(window):
+    frame4_path = ASSETS_PATH + "\\frame4\\"
+    pop_up = tk.Toplevel(window)
+    pop_up.title("Warning")
+    pop_up.geometry("155x100")
+    pop_up.iconbitmap(frame4_path + "prohibition.ico")
+
+    pop_up_message = tk.Label(pop_up, text="Maximum components \nreached.")
+    close_button = tk.Button(pop_up, borderwidth=1, text="close", command=lambda: close_window(pop_up, window))
+    pop_up_message.place(x=15, y=20)
+    close_button.place(x=110, y=70, width=30, height=20)
+    pop_up.resizable(False, False)
+    pop_up.mainloop()
+
+
+def close_window(pop_up, window):
+    pop_up.destroy()
+    window.deiconify()
 
 
 def add_element(component_name):
