@@ -20,15 +20,15 @@ def relative_to_assets(path: str) -> Path:
 
 window = Tk()
 
-window.geometry("176x100")
+window.geometry("158x84")
 window.configure(bg = "#FFFFFF")
 
 
 canvas = Canvas(
     window,
     bg = "#FFFFFF",
-    height = 100,
-    width = 176,
+    height = 84,
+    width = 158,
     bd = 0,
     highlightthickness = 0,
     relief = "ridge"
@@ -38,25 +38,17 @@ canvas.place(x = 0, y = 0)
 image_image_1 = PhotoImage(
     file=relative_to_assets("image_1.png"))
 image_1 = canvas.create_image(
-    23.0,
-    15.0,
+    41.0,
+    18.0,
     image=image_image_1
 )
 
 image_image_2 = PhotoImage(
     file=relative_to_assets("image_2.png"))
 image_2 = canvas.create_image(
-    76.0,
-    15.0,
+    113.0,
+    17.0,
     image=image_image_2
-)
-
-image_image_3 = PhotoImage(
-    file=relative_to_assets("image_3.png"))
-image_3 = canvas.create_image(
-    129.0,
-    16.0,
-    image=image_image_3
 )
 
 button_image_1 = PhotoImage(
@@ -69,8 +61,8 @@ button_1 = Button(
     relief="flat"
 )
 button_1.place(
-    x=122.0,
-    y=72.0,
+    x=52.0,
+    y=60.0,
     width=49.00001907348633,
     height=18.0
 )
