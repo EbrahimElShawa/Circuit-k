@@ -4,6 +4,7 @@ import os
 import matplotlib.pyplot as plt
 import subprocess
 import sys
+import equation
 
 pi = np.pi
 exp = np.exp
@@ -51,7 +52,9 @@ class Circuit:
     def plot_branch(self, select, n0=-1, n1=-1, xmin=0, xmax=-1):
         if xmax == -1:
             xmax = self._circuit.t_vec[-1]
-        # select 0 branch
+        if xmin == -1:
+            xmin = 0
+            # select 0 branch
         # select 1 node voltage
         # select 2 voltage dif 2 nodes
         font1 = {'family': 'serif', 'color': 'blue', 'size': 20}
@@ -387,6 +390,8 @@ class TimeDomainCircuit():
                         np.tan(np.pi * self.t_vec[bf_ramp] / (1 / frq) + np.radians(ang))) * self.t_vec[bf_ramp]
                     sources[idx, aft_ramp] = (2 * mag * np.sqrt(3) / np.pi) * np.arctan(
                         np.tan(np.pi * self.t_vec[aft_ramp] / (1 / frq) + np.radians(ang)))
+            else:
+                sources[idx] = equation.evaluate_equation_for_range(list(source[0].loc[1])[0], self.t_vec)
 
         return sources
 
@@ -473,6 +478,7 @@ class TimeDomainCircuit():
         cap_cur_inj_nth = np.zeros(self.no_capacitors)  # capacitive current injection at the nth time step
         ind_vals = self._data_arr[self._masks['L'], 3]
         cap_vals = self._data_arr[self._masks['C'], 3]
+        print("\n\nstart analyzing .......%")
         for nth_iter in range(len(self.t_vec)):
             cur_time = nth_iter / (self.t_max / self.time_step)
             percentage = (cur_time / self.t_max) * 100

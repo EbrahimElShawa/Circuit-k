@@ -1,5 +1,5 @@
 Type
-WAVE
+t^3
 Ramp_up_time
 0
 Magnitude
