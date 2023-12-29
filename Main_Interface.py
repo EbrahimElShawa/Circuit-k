@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 import Utilites, Secondary_Interfaces
 
-ASSETS_PATH = Path("P:\\Study\\Python\\Tick_2\\assets\\frame0")
+ASSETS_PATH = Path(".\\assets\\frame0")
 
 
 def main():

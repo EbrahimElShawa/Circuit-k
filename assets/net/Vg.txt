@@ -1,0 +1,10 @@
+Type
+WAVE
+Ramp_up_time
+0
+Magnitude
+100
+Frequency
+50
+Angle
+0

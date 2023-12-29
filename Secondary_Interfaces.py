@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import Canvas, ttk, PhotoImage, Button, Toplevel, Entry, Label
 
-ASSETS_PATH = "P:\\Study\\Python\\Tick_2\\assets"
+ASSETS_PATH = ".\\assets"
 font = ('Times New Roman', 10, 'bold')
 magnitude, angle, frequency, ramp_time, equation = None, None, None, None, None
 branches, nodes = 0, 0

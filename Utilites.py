@@ -7,7 +7,7 @@ OUTPUT_PATH = Path(__file__).parent
 widgets_sets_count = 0
 widgets_set = []
 from_list, to_list = [], []
-ASSETS_PATH = Path("P:\\Study\\Python\\Tick_2\\assets")
+ASSETS_PATH = Path(".\\assets")
 
 
 def add_fields(window):
