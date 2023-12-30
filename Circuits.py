@@ -1,9 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
-import equation
-from schemdraw import Drawing, elements as draw
-import schemdraw.elements
+from circuitTools import evaluate_equation_for_range
 
 pi = np.pi
 exp = np.exp
@@ -321,7 +319,7 @@ class TimeDomainCircuit():
                     sources[idx, aft_ramp] = (2 * mag * np.sqrt(3) / np.pi) * np.arctan(
                         np.tan(np.pi * self.t_vec[aft_ramp] / (1 / frq) + np.radians(ang)))
             else:
-                sources[idx] = equation.evaluate_equation_for_range(list(source[0].loc[1])[0], self.t_vec)
+                sources[idx] = evaluate_equation_for_range(list(source[0].loc[1])[0], self.t_vec)
 
         return sources
 
