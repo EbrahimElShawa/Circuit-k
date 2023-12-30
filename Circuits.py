@@ -1,10 +1,9 @@
 import pandas as pd
 import numpy as np
 import os
-import matplotlib.pyplot as plt
-import subprocess
-import sys
 import equation
+from schemdraw import Drawing, elements as draw
+import schemdraw.elements
 
 pi = np.pi
 exp = np.exp
@@ -49,77 +48,8 @@ class Circuit:
         if isinstance(self._circuit, DC):
             return self._circuit.branch_quantities
 
-    def plot_branch(self, select, n0=-1, n1=-1, xmin=0, xmax=-1):
-        if xmax == -1:
-            xmax = self._circuit.t_vec[-1]
-        if xmin == -1:
-            xmin = 0
-            # select 0 branch
-        # select 1 node voltage
-        # select 2 voltage dif 2 nodes
-        font1 = {'family': 'serif', 'color': 'blue', 'size': 20}
-        font2 = {'family': 'serif', 'color': 'darkred', 'size': 15}
 
-        plt.rcParams['figure.figsize'] = [10, 4]  # size of window ( w , H )
-
-        if select == 0:
-            fig, axs = plt.subplots(1, 2)
-
-            i = list(self._circuit.currents.columns)[n0]
-            axs[0].set_title(i + " diagram", fontdict=font1)
-            axs[0].set_xlabel("Time (seconds)", fontdict=font2)
-            axs[0].set_ylabel("Amplitude (A)", fontdict=font2)
-            axs[0].grid(color='black', linestyle='--', linewidth=0.5)
-            axs[0].plot(self._circuit.t_vec, self._circuit.currents.iloc[:, n0])
-            axs[0].set_xlim(xmin, xmax)
-
-            v = list(self._circuit.branch_voltages.columns)[n0]
-            axs[1].set_title(v + " diagram", fontdict=font1)
-            axs[1].set_xlabel("Time (seconds)", fontdict=font2)
-            axs[1].set_ylabel("Amplitude (V)", fontdict=font2)
-            axs[1].grid(color='black', linestyle='--', linewidth=0.5)
-            axs[1].plot(self._circuit.t_vec, self._circuit.branch_voltages.iloc[:, n0])
-            axs[1].set_xlim(xmin, xmax)
-
-        if select == 1:
-            plt.title(" V" + str(n0) + " diagram", fontdict=font1)
-            plt.xlabel("Time (seconds)", fontdict=font2)
-            plt.ylabel("Amplitude (V)", fontdict=font2)
-            plt.grid(color='black', linestyle='--', linewidth=0.5)
-            plt.plot(self._circuit.t_vec, self._circuit.node_voltages['V' + str(n0) + ' (V)'])
-            plt.xlim(xmin, xmax)
-
-        if select == 2:
-            plt.title("p.d between " + 'V' + str(n0) + ' , V' + str(n1), fontdict=font1)
-            plt.xlabel("Time (seconds)", fontdict=font2)
-            plt.ylabel("Amplitude (V)", fontdict=font2)
-            plt.grid(color='black', linestyle='--', linewidth=0.5)
-            plt.plot(self._circuit.t_vec,
-                     self._circuit.node_voltages['V' + str(n0) + ' (V)'] - self._circuit.node_voltages[
-                         'V' + str(n1) + ' (V)'])
-            plt.xlim(xmin, xmax)
-
-        plt.tight_layout()
-        plt.show()
-
-    def excel(self):
-        # Specify the file name
-        file_name = 'analysis.xlsx'
-        # Create ExcelWriter object
-        with pd.ExcelWriter(file_name) as writer:
-            # Store each DataFrame in a separate sheet
-            self._circuit.branch_voltages.to_excel(writer, sheet_name='Branches_Voltages')
-            self._circuit.node_voltages.to_excel(writer, sheet_name='Nodes_Voltages')
-            self._circuit.currents.to_excel(writer, sheet_name='Branches_Currents')
-
-        if os.name == 'nt':  # Check if the operating system is Windows
-            os.startfile(file_name)
-        else:  # For other operating systems like MacOS or Linux
-            opener = 'open' if sys.platform == 'darwin' else 'xdg-open'
-            subprocess.call([opener, file_name])
-
-
-class DC():
+class DC:
     def __init__(self, data_file):
         self.data_df = pd.read_csv(data_file, sep=' ', names=['Component Name', 'From Node', 'To Node', 'Value'])
         self._data_arr = self._df_to_array()

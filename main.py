@@ -1,12 +1,10 @@
 from Circuits import Circuit
 import matplotlib.pyplot as plt
+import circuitTools
 
 if __name__ == '__main__':
     my_circuit = Circuit("assets/net/net.txt")
-    plt.switch_backend('TkAgg')  # Replace Pycharm Tkinter with Anti-Grain Geometry
 
-    my_circuit.plot_branch(0,1,2,-1,-1)
-    my_circuit.excel()   # export csv
-
-
-
+    circuitTools.plot_branch(my_circuit, 0, 1, -1, -1, -1)
+    circuitTools.excel(my_circuit)
+    circuitTools.picture(my_circuit)
