@@ -5,18 +5,18 @@ ASSETS_PATH = ".\\assets"
 font = ('Times New Roman', 10, 'bold')
 magnitude, angle, frequency, ramp_time, equation = None, None, None, None, None
 branches, nodes = 0, 0
+component_list, magnitude_list = [], []
+max_time, step = '', ''
 
 
 def set_values_window(window, component_name):
     global ASSETS_PATH, magnitude, angle, frequency, ramp_time, equation
     if component_name == 'AC':
-
         frame1_path = ASSETS_PATH + "\\frame1\\"
         values_window = Toplevel(window)
         values_window.title("Set Value")
         values_window.geometry("300x128")
         values_window.iconbitmap(frame1_path + "AC_Power.ico")
-        values_window.focus_set()
         canvas = tk.Canvas(values_window, bg="#FFFFFF", height=150, width=300, bd=0)
         canvas.place(x=0, y=0)
 
@@ -26,22 +26,26 @@ def set_values_window(window, component_name):
         image_4 = PhotoImage(file=frame1_path + "image_4.png")
         add_element_button_image = PhotoImage(file=frame1_path + "button_1.png")
         add_element_button = tk.Button(values_window, image=add_element_button_image, borderwidth=0,
-                                       command=lambda: add_element(component_name))
-        combobox_value = tk.StringVar()
-        wave_type_combobox = ttk.Combobox(values_window, textvariable=combobox_value, state='readonly',
+                                       command=lambda: add_source(values_window, window, mag_entry.get(),
+                                                                  ang_entry.get(), freq_entry.get(),
+                                                                  ramp_entry.get(), eq_entry.get(),
+                                                                  source_type_combobox.get(), wave_type_combobox.get()))
+        source_type_combobox = ttk.Combobox(values_window, state='readonly', values=['Vs', 'Is'])
+        wave_type_combobox = ttk.Combobox(values_window, state='readonly',
                                           values=['SINE', 'RECTANGLE', 'TRIANGLE', 'SAWTOOTH'])
         mag_entry = Entry(values_window, bg="#D9D9D9", foreground="#780000", font=font)
         ang_entry = Entry(values_window, bg="#D9D9D9", foreground="#780000", font=font)
         freq_entry = Entry(values_window, bg="#D9D9D9", foreground="#780000", font=font)
         ramp_entry = Entry(values_window, bg="#D9D9D9", foreground="#780000", font=font)
         eq_entry = Entry(values_window, bg="#D9D9D9", foreground="#780000", font=font)
-
+        mag_entry.focus_set()
         canvas.create_image(36, 17, image=image_1)
         canvas.create_image(188, 17, image=image_2)
         canvas.create_image(36.0, 113, image=image_3)
         canvas.create_image(19.0, 80.0, image=image_4)
         add_element_button.place(x=210, y=106, width=82, height=15)
-        wave_type_combobox.place(x=210, y=78, width=80, height=20)
+        source_type_combobox.place(x=260, y=55, width=35, height=20)
+        wave_type_combobox.place(x=205, y=78, width=90, height=20)
         mag_entry.place(x=8, y=35, width=52, height=18)
         ang_entry.place(x=85, y=35, width=32, height=18)
         freq_entry.place(x=148, y=35, width=30, height=18)
@@ -50,7 +54,6 @@ def set_values_window(window, component_name):
 
         magnitude, angle, frequency = mag_entry.get(), ang_entry.get(), freq_entry.get()
         ramp_time, equation = ramp_entry.get(), eq_entry.get()
-
         values_window.resizable(False, False)
         values_window.mainloop()
 
@@ -60,21 +63,19 @@ def set_values_window(window, component_name):
         values_window.geometry("230x100")
         values_window.title("Set Value")
         values_window.iconbitmap(frame2_path + "DC.ico")
-        values_window.focus_set()
         canvas = Canvas(values_window, bg="#FFFFFF", height=100, width=230, bd=0)
         canvas.place(x=0, y=0)
 
         image_1 = PhotoImage(file=frame2_path + "image_1.png")
         add_element_button_image = PhotoImage(file=frame2_path + "button_1.png")
         add_element_button = tk.Button(values_window, image=add_element_button_image, borderwidth=0,
-                                       command=lambda: add_element(component_name), relief="flat")
+                                       command=lambda: add_element(values_window, window, component_name,
+                                                                   mag_entry.get()))
         mag_entry = Entry(values_window, bg="#D9D9D9", foreground="#780000", font=font)
-
+        mag_entry.focus_set()
         canvas.create_image(50.0, 20.0, image=image_1)
         add_element_button.place(x=140, y=75, width=82, height=15)
         mag_entry.place(x=15, y=40, width=52, height=18)
-
-        magnitude = mag_entry.get()
 
         values_window.resizable(False, False)
         values_window.mainloop()
@@ -96,6 +97,10 @@ def pop_up_window(window):
 
 
 def process(window):
+    if not nodes:
+        print('No nodes entered')
+        return
+
     frame5_path = ASSETS_PATH + "\\frame5\\"
     domain_window = Toplevel(window)
     domain_window.title("Domain")
@@ -108,10 +113,12 @@ def process(window):
     image_2 = PhotoImage(file=frame5_path + "image_2.png")
     tmax_entry = Entry(domain_window, bg="#FFFFFF", foreground="#780000", font=font)
     step_entry = Entry(domain_window, bg="#FFFFFF", foreground="#780000", font=font)
+    step_entry.insert(0, '10e-4')
     analyse_button_image = PhotoImage(file=frame5_path + "button_1.png")
     analyse_button = Button(domain_window, image=analyse_button_image, borderwidth=0,
-                            command=lambda: analyse(domain_window, window), relief="flat")
+                            command=lambda: analyse(domain_window, window, tmax_entry.get(), step_entry.get()))
 
+    tmax_entry.focus_set()
     canvas.create_image(41.0, 18.0, image=image_1)
     canvas.create_image(113.0, 17.0, image=image_2)
     tmax_entry.place(x=25, y=30, width=30, height=18)
@@ -122,14 +129,21 @@ def process(window):
     domain_window.mainloop()
 
 
-def analyse(domain_window, window):
+def analyse(domain_window, window, t_max, t_step):
+    global max_time, step
+    try:
+        _, _ = int(t_max), float(t_step)
+    except ValueError:
+        print('Please enter a valid number')
+        return
+    max_time, step = t_max, t_step      # BackEnd will use these
+
     frame6_path = ASSETS_PATH + "\\frame6\\"
     result_window = Toplevel(window)
     result_window.title("Result")
     result_window.geometry("291x348")
     canvas = Canvas(result_window, bg="#FFFFFF", height=348, width=291, bd=0)
     canvas.place(x=0, y=0)
-
     close_window(domain_window, result_window)
 
     image_image_1 = PhotoImage(file=frame6_path + "image_1.png")
@@ -160,13 +174,14 @@ def analyse(domain_window, window):
 
     plot_branch_button_image = PhotoImage(file=frame6_path + "button_1.png")
     plot_branch_button = Button(result_window, image=plot_branch_button_image, borderwidth=0,
-                                command=lambda: print("button_1 clicked"), relief="flat")
+                                command=lambda: plot_branch(branch_box.get(), tmin_branch_entry.get(), tmax_branch_entry.get()))
     plot_node_button_image = PhotoImage(file=frame6_path + "button_2.png")
     plot_node_button = Button(result_window, image=plot_node_button_image, borderwidth=0,
-                              command=lambda: print("button_2 clicked"), relief="flat")
+                              command=lambda: plot_node(node_box.get(), tmax_node_entry.get(), tmax_node_entry.get()))
     plot_from_to_button_image = PhotoImage(file=frame6_path + "button_3.png")
     plot_from_to_button = Button(result_window, image=plot_from_to_button_image, borderwidth=0,
-                                 command=lambda: print("button_3 clicked"), relief="flat")
+                                 command=lambda: plot_from_to(from_box.get(), to_box.get(),
+                                                              from_to_tmin_entry.get(), from_to_tmax_entry.get()))
     export_button_image = PhotoImage(file=frame6_path + "button_4.png")
     export_button = Button(result_window, image=export_button_image, borderwidth=0,
                            command=lambda: print("button_4 clicked"), relief="flat")
@@ -200,8 +215,68 @@ def analyse(domain_window, window):
     result_window.mainloop()
 
 
-def add_element(component_name):
-    pass
+def add_source(values_window, window, mag, ang, freq, ramp, eq, source_type, wave_type):
+    input_value = [mag, ang, freq, ramp, eq]
+    try:
+        for _ in input_value[:4]:
+            __ = int(_)
+    except ValueError:
+        print('Please enter a valid number')
+        return
+    close_window(values_window, window)
+    # Here to append to the list
+
+
+def add_element(values_window, window, component_name, mag):
+    global component_list, magnitude_list
+    try:
+        _ = int(mag)
+    except ValueError:
+        print('Please enter a valid number')
+        return
+
+    magnitude_list.append(mag)
+    component_list.append(component_name)
+    close_window(values_window, window)
+
+
+def plot_branch(branch, t_min, t_max):
+    try:
+        _, _, _ = int(branch[-1]), int(t_min), int(t_max)
+    except IndexError:
+        print('Please select a branch')
+        return
+    except ValueError:
+        print('Please enter a valid number')
+        return
+    
+    # Here to plot the branch
+
+
+def plot_node(node, t_min, t_max):
+    if node == '':
+        print('Please select nodes')
+        return
+    try:
+        _, _ = int(t_min), int(t_max)
+    except ValueError:
+        print('Please enter a valid number')
+        return
+
+    # Here to plot node
+
+
+def plot_from_to(from_node, to_node, t_min, t_max):
+    if from_node == '' or to_node == '':
+        print('Please select nodes')
+        return
+    try:
+        _, _, = int(t_min), int(t_max)
+    except ValueError:
+        print('Please enter a valid number')
+        return
+
+    # Here to plot from_to
 
 
 def close_window(pop_up, window):
@@ -214,3 +289,5 @@ def set_nodes(last_node):
     if nodes < last_node:
         nodes = last_node
     print(nodes)
+
+#  i wanna make a window not clickable until another window is closed

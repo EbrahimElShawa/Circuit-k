@@ -47,8 +47,8 @@ def add_fields(window):
     from_entry.bind("<FocusOut>", lambda event: from_list_append(from_entry.get()))
     to_entry.bind("<FocusOut>", lambda event: append_and_compare(to_entry.get(), set_index))
 
-    component_type_combobox.bind("<<ComboboxSelected>>", lambda event: Secondary_Interfaces.set_values_window(window,
-                                                                                                              component_type_combobox.get()))
+    component_type_combobox.bind("<<ComboboxSelected>>",
+                                 lambda event: Secondary_Interfaces.set_values_window(window, component_type_combobox.get()))
     Secondary_Interfaces.branches = int(component_label.cget("text"))
     widgets_sets_count += 1
     widget_set = (from_entry, to_entry, component_type_combobox, remove_button, component_label)
@@ -60,18 +60,68 @@ def from_list_append(string_value):
     global from_list
     try:
         _ = int(string_value)
-        from_list.append(string_value)
     except ValueError:
         print("Please enter a valid Number")
+    from_list.append(string_value)
 
 
 def to_list_append(string_value):
     global to_list
     try:
         _ = int(string_value)
-        to_list.append(string_value)
     except ValueError:
         print("Please enter a valid Number")
+    to_list.append(string_value)
+
+
+def remove(from_entry, to_entry, type_combobox, remove_button, component_label):
+    global widgets_set, widgets_sets_count, from_list, to_list
+    w_index = widgets_set.index((from_entry, to_entry, type_combobox, remove_button, component_label))
+
+    from_entry.destroy()
+    to_entry.destroy()
+    type_combobox.destroy()
+    remove_button.destroy()
+    component_label.destroy()
+
+    if widgets_sets_count == 1:
+        clear_all()
+        return
+    widgets_set.pop(w_index)
+    if w_index < len(from_list):
+        from_list.pop(w_index)
+    if w_index < len(to_list):
+        to_list.pop(w_index)
+        node_comparison(w_index)
+    if w_index < len(Secondary_Interfaces.magnitude_list):
+        Secondary_Interfaces.component_list.pop(w_index)
+        Secondary_Interfaces.magnitude_list.pop(w_index)
+        print(Secondary_Interfaces.magnitude_list, Secondary_Interfaces.component_list)
+    widgets_sets_count -= 1
+    Secondary_Interfaces.branches -= 1
+
+    for i in range(w_index, len(widgets_set)):  # Reconfiguring later instances
+        widget_set = widgets_set[i]
+        for widget in widget_set:
+            place_info = widget.place_info()
+            widget.place(x=int(place_info['x']), y=int(place_info['y']) - 27)
+        element = widget_set[4].cget("text")
+        widget_set[4].configure(text=f"{int(element) - 1}")
+
+
+def clear_all():
+    global widgets_set, widgets_sets_count, from_list, to_list
+
+    for widget_set in widgets_set:
+        for widget in widget_set:
+            widget.destroy()
+
+    widgets_sets_count = 0
+    Secondary_Interfaces.nodes = 0
+    Secondary_Interfaces.branches = 0
+    widgets_set, from_list, to_list = [], [], []
+    Secondary_Interfaces.component_list = []
+    Secondary_Interfaces.magnitude_list = []
 
 
 def node_comparison(index):
@@ -87,45 +137,3 @@ def node_comparison(index):
 def append_and_compare(string_value, index):
     to_list_append(string_value)
     node_comparison(index)
-
-
-def remove(from_entry, to_entry, type_combobox, remove_button, component_label):
-    global widgets_set, widgets_sets_count, from_list, to_list
-    w_index = widgets_set.index((from_entry, to_entry, type_combobox, remove_button, component_label))
-
-    from_entry.destroy()
-    to_entry.destroy()
-    type_combobox.destroy()
-    remove_button.destroy()
-    component_label.destroy()
-    widgets_set.pop(w_index)
-    if w_index < len(from_list):
-        from_list.pop(w_index)
-    if w_index < len(to_list):
-        to_list.pop(w_index)
-    widgets_sets_count -= 1
-
-    for i in range(w_index, len(widgets_set)):  # Reconfiguring later instances
-        widget_set = widgets_set[i]
-        for widget in widget_set:
-            place_info = widget.place_info()
-            widget.place(x=int(place_info['x']), y=int(place_info['y']) - 27)
-        element = widget_set[4].cget("text")
-        widget_set[4].configure(text=f"{int(element) - 1}")
-        Secondary_Interfaces.branches = int(widget_set[4].cget("text"))
-
-    if not widgets_set:
-        widgets_sets_count = 0
-
-
-def clear_all():
-    global widgets_set, widgets_sets_count, from_list, to_list
-
-    for widget_set in widgets_set:
-        for widget in widget_set:
-            widget.destroy()
-
-    widgets_set, from_list, to_list = [], [], []
-    widgets_sets_count = 0
-    Secondary_Interfaces.nodes = 0
-    Secondary_Interfaces.branches = 0
