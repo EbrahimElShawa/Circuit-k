@@ -6,12 +6,11 @@ import Secondary_Interfaces
 OUTPUT_PATH = Path(__file__).parent
 widgets_sets_count = 0
 widgets_set = []
-from_list, to_list = [], []
 ASSETS_PATH = Path(".\\assets")
 
 
 def add_fields(window):
-    global widgets_sets_count, widgets_set, from_list, to_list
+    global widgets_sets_count, widgets_set
 
     if widgets_sets_count >= 12:
         Secondary_Interfaces.pop_up_window(window)
@@ -28,12 +27,11 @@ def add_fields(window):
     from_entry = tk.Entry(window, bg="#D9D9D9", foreground="#0500FF", font=('Times New Roman', 15, 'bold'))
     to_entry = tk.Entry(window, bg="#D9D9D9", foreground="#0500FF", font=('Times New Roman', 15, 'bold'))
     component_type_combobox = ttk.Combobox(window, state='readonly',
-                                           values=['R', 'L', 'C', 'Vs', 'Is', 'AC'])
+                                           values=['R', 'L', 'C', 'Vdc', 'Idc', 'AC'])
     component_label = tk.Label(window, text=f"{widgets_sets_count + 1}", bg="#D9D9D9",
                                font=('Times New Roman', 15, 'bold'), foreground="#003049")
     remove_button_image = PhotoImage(file=ASSETS_PATH / "frame0\\button_5.png")
-    remove_button = Button(image=remove_button_image, borderwidth=0, command=lambda: remove(from_entry, to_entry, component_type_combobox,
-                                                                                            remove_button, component_label))
+    remove_button = Button(image=remove_button_image, borderwidth=0, command=lambda: remove(widget_set))
     remove_button.image = remove_button_image  # :)    Keeping a reference to the image for newly created buttons
     # Because only once can an Image be an instance for a button (can't be for multiple buttons)
     window.focus_set()
@@ -44,16 +42,26 @@ def add_fields(window):
     remove_button.place(x=369, y=new_y, width=107.0, height=22.0)
     component_label.place(x=60, y=new_y - 2)  # Minor adjustment to y-axis
 
-    from_entry.bind("<FocusOut>", lambda event: from_list_append(from_entry.get()))
-    to_entry.bind("<FocusOut>", lambda event: append_and_compare(to_entry.get(), set_index))
-
+    # from_entry.bind("<FocusOut>", lambda event: from_list_append(from_entry.get()))
+    # to_entry.bind("<FocusOut>", lambda event: append_and_compare(to_entry.get(), set_index))
     component_type_combobox.bind("<<ComboboxSelected>>",
-                                 lambda event: Secondary_Interfaces.set_values_window(window, component_type_combobox.get()))
+                                 lambda event: Secondary_Interfaces.set_values_window(window,
+                                                                                      component_type_combobox.get(),
+                                                                                      index))
     Secondary_Interfaces.branches = int(component_label.cget("text"))
-    widgets_sets_count += 1
+
+    Secondary_Interfaces.magnitude_list.append('')
+    Secondary_Interfaces.component_list.append('')
+    Secondary_Interfaces.ramp_time_list.append('')
+    Secondary_Interfaces.angle_list.append('')
+    Secondary_Interfaces.freq_list.append('')
+    Secondary_Interfaces.wave_type_list.append('')
+    Secondary_Interfaces.nodes_list.append(('',''))
+
     widget_set = (from_entry, to_entry, component_type_combobox, remove_button, component_label)
+    widgets_sets_count += 1
     widgets_set.append(widget_set)
-    set_index = widgets_set.index(widget_set)
+    index = widgets_set.index(widget_set)
 
 
 def from_list_append(string_value):
@@ -74,33 +82,51 @@ def to_list_append(string_value):
     to_list.append(string_value)
 
 
-def remove(from_entry, to_entry, type_combobox, remove_button, component_label):
+def process(window):
+    global widgets_set
+    for i, a in enumerate(widgets_set):
+        Secondary_Interfaces.nodes_list[i] = (a[0].get(), a[1].get())
+    print(Secondary_Interfaces.nodes_list)
+   # try execpt
+    for value in Secondary_Interfaces.nodes_list:
+        if value[0] == '' or value[1] == '':
+            print("There are empty boxes")
+            return
+    for value in Secondary_Interfaces.magnitude_list:
+        if value == '':
+            print("There are empty boxes")
+            return
+
+    for value in Secondary_Interfaces.ramp_time_list:
+        if value == '':
+            print("There are boxes")
+            return
+
+    Secondary_Interfaces.max_node()
+    Secondary_Interfaces.process_window(window)
+
+
+def remove(widgets):
     global widgets_set, widgets_sets_count, from_list, to_list
-    w_index = widgets_set.index((from_entry, to_entry, type_combobox, remove_button, component_label))
-
-    from_entry.destroy()
-    to_entry.destroy()
-    type_combobox.destroy()
-    remove_button.destroy()
-    component_label.destroy()
-
+    # w_index = widgets_set.index((from_entry, to_entry, type_combobox, remove_button, component_label))
+    index = widgets_set.index(widgets)
+    for widget in widgets:
+        widget.destroy()
+    widgets_set.remove(widgets)
+    Secondary_Interfaces.magnitude_list.pop(index)
+    Secondary_Interfaces.component_list.pop(index)
+    Secondary_Interfaces.wave_type_list.pop(index)
+    Secondary_Interfaces.freq_list.pop(index)
+    Secondary_Interfaces.angle_list.pop(index)
+    Secondary_Interfaces.ramp_time_list.pop(index)
     if widgets_sets_count == 1:
         clear_all()
         return
-    widgets_set.pop(w_index)
-    if w_index < len(from_list):
-        from_list.pop(w_index)
-    if w_index < len(to_list):
-        to_list.pop(w_index)
-        node_comparison(w_index)
-    if w_index < len(Secondary_Interfaces.magnitude_list):
-        Secondary_Interfaces.component_list.pop(w_index)
-        Secondary_Interfaces.magnitude_list.pop(w_index)
-        print(Secondary_Interfaces.magnitude_list, Secondary_Interfaces.component_list)
+
     widgets_sets_count -= 1
     Secondary_Interfaces.branches -= 1
 
-    for i in range(w_index, len(widgets_set)):  # Reconfiguring later instances
+    for i in range(index, len(widgets_set)):  # Reconfiguring later instances
         widget_set = widgets_set[i]
         for widget in widget_set:
             place_info = widget.place_info()
@@ -110,7 +136,7 @@ def remove(from_entry, to_entry, type_combobox, remove_button, component_label):
 
 
 def clear_all():
-    global widgets_set, widgets_sets_count, from_list, to_list
+    global widgets_set, widgets_sets_count
 
     for widget_set in widgets_set:
         for widget in widget_set:
@@ -119,9 +145,13 @@ def clear_all():
     widgets_sets_count = 0
     Secondary_Interfaces.nodes = 0
     Secondary_Interfaces.branches = 0
-    widgets_set, from_list, to_list = [], [], []
+    widgets_set = []
     Secondary_Interfaces.component_list = []
     Secondary_Interfaces.magnitude_list = []
+    Secondary_Interfaces.ramp_time_list = []
+    Secondary_Interfaces.freq_list = []
+    Secondary_Interfaces.wave_type_list = []
+    Secondary_Interfaces.angle_list = []
 
 
 def node_comparison(index):

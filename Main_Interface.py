@@ -54,7 +54,7 @@ def main():
     # Buttons:
     process_button_image = PhotoImage(file=ASSETS_PATH / "button_1.png")
     process_button = Button(image=process_button_image, borderwidth=0,
-                            command=lambda: Secondary_Interfaces.process(window), relief="flat")
+                            command=lambda: Utilites.process(window), relief="flat")
     process_button.place(x=317, y=497, width=128.0, height=46.0)
 
     draw_circuit_button_image = PhotoImage(file=ASSETS_PATH / "button_2.png")
