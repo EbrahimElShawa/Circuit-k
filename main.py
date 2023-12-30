@@ -8,4 +8,4 @@ if __name__ == '__main__':
 
     # circuitTools.plot_branch(my_circuit, 0, 1, -1, -1, -1)
    # circuitTools.excel(my_circuit)
-    circuitTools.picture(my_circuit)
+    # circuitTools.picture(my_circuit)
