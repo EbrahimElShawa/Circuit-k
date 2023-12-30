@@ -56,7 +56,7 @@ def add_fields(window):
     Secondary_Interfaces.angle_list.append('')
     Secondary_Interfaces.freq_list.append('')
     Secondary_Interfaces.wave_type_list.append('')
-    Secondary_Interfaces.nodes_list.append(('',''))
+    Secondary_Interfaces.nodes_list.append(('', ''))
 
     widget_set = (from_entry, to_entry, component_type_combobox, remove_button, component_label)
     widgets_sets_count += 1
@@ -87,7 +87,7 @@ def process(window):
     for i, a in enumerate(widgets_set):
         Secondary_Interfaces.nodes_list[i] = (a[0].get(), a[1].get())
     print(Secondary_Interfaces.nodes_list)
-   # try execpt
+    # try execpt
     for value in Secondary_Interfaces.nodes_list:
         if value[0] == '' or value[1] == '':
             print("There are empty boxes")
@@ -167,3 +167,5 @@ def node_comparison(index):
 def append_and_compare(string_value, index):
     to_list_append(string_value)
     node_comparison(index)
+
+

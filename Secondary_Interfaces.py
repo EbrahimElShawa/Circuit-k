@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import Canvas, ttk, PhotoImage, Button, Toplevel, Entry, Label
-
+from main import runCirucit
 ASSETS_PATH = ".\\assets"
 font = ('Times New Roman', 10, 'bold')
 branches, nodes = 0, 0
@@ -158,6 +158,8 @@ def analyse(domain_window, window, t_max, t_step):
         return
     max_time, step = t_max, t_step  # BackEnd will use these
 
+    runCirucit()
+
     frame6_path = ASSETS_PATH + "\\frame6\\"
     result_window = Toplevel(window)
     result_window.title("Result")
@@ -251,7 +253,7 @@ def add_source(values_window, window, mag, ang, freq, ramp, source_type, wave_ty
     component_list[index] = source_type
     ramp_time_list[index] = ramp
     freq_list[index] = freq
-    wave_type[index] = wave_type
+    wave_type_list[index] = wave_type
     angle_list[index] = ang
 
 
