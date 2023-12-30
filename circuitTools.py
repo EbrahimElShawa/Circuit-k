@@ -269,6 +269,7 @@ def evaluate_equation_for_range(equation, t_vec):
         print(f"value of {value} second is {source[-1]}")
     return source
 
+
 class NooValidExpression(Exception):
     def __init__(self, message="The equation is not valid."):
         self.message = message
