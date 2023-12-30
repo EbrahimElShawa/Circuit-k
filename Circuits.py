@@ -14,9 +14,7 @@ class Circuit:
     def __init__(self, data_file):
         with open(data_file[:-4] + '_cond.txt') as reader:
             first_line = reader.readline().split()
-            if len(first_line) == 0:
-                self._circuit = DC(data_file)
-            elif len(first_line) != 0:
+            if len(first_line) != 0:
                 self._circuit = TimeDomainCircuit(data_file)
             else:
                 raise ValueError(f'The format of {data_file[:-4]}_cond.txt is invalid. \n'
@@ -41,108 +39,6 @@ class Circuit:
     def currents(self):
         if isinstance(self._circuit, TimeDomainCircuit):
             return self._circuit.currents
-
-    @property
-    def branch_quantities(self):
-        if isinstance(self._circuit, DC):
-            return self._circuit.branch_quantities
-
-
-class DC:
-    def __init__(self, data_file):
-        self.data_df = pd.read_csv(data_file, sep=' ', names=['Component Name', 'From Node', 'To Node', 'Value'])
-        self._data_arr = self._df_to_array()
-        self.no_nodes = int(self._data_arr[:, [1, 2]].max())
-        self.no_branches = int(self._data_arr.shape[0])
-        self._y_n = self._calc_y_n()
-        self._inc_mat = self._calc_inc_mat()
-        self._v_adj = self._inc_mat[:, self._data_arr[:, 0] == 10]
-        self._mna_mat = self._calc_mna_mat()
-        self._i_n = self._calc_i_n()
-        self._v_s = self._data_arr[self._data_arr[:, 0] == 10, 3]
-        self._rhs = np.concatenate((self._i_n, self._v_s), axis=0)
-        self._x = np.linalg.solve(self._mna_mat, self._rhs)
-        self._v_n = self._x[:self.no_nodes]
-        self._i_v_s = self._x[self.no_nodes:]
-        self.v_b = self._inc_mat.T @ self._v_n
-        self._y_b = self._calc_y_b()
-        self.i_b = self._calc_i_b()
-        self.branch_quantities = self._branch_result_dataframe()
-
-    def _df_to_array(self):
-        data_transf = self.data_df.copy()
-        comp_types = {'R': 0, 'V': 10, 'I': 20}
-        data_transf['Component Name'] = self.data_df['Component Name'].map(lambda name: comp_types[name[0]])
-        return np.array(data_transf, dtype=float)
-
-    def _calc_y_n(self):
-        y_n = np.zeros((self.no_nodes, self.no_nodes))
-        res_branch = self._data_arr[self._data_arr[:, 0] == 0, :]
-        for idx in range(res_branch.shape[0]):
-            y = 1 / res_branch[idx, 3]
-            node_from = int(res_branch[idx, 1])
-            node_to = int(res_branch[idx, 2])
-            if node_from != 0:
-                y_n[node_from - 1, node_from - 1] += y
-                if node_to != 0:
-                    y_n[node_to - 1, node_to - 1] += y
-                    y_n[node_from - 1, node_to - 1] -= y
-                    y_n[node_to - 1, node_from - 1] -= y
-            else:
-                y_n[node_to - 1, node_to - 1] += y
-
-        return y_n
-
-    def _calc_inc_mat(self):
-        inc_mat = np.zeros((self.no_nodes, self.no_branches))
-        for b in range(0, self.no_branches):
-            node_from = int(self._data_arr[b, 1])
-            node_to = int(self._data_arr[b, 2])
-            if node_from != 0:
-                inc_mat[node_from - 1, b] = 1
-            if node_to != 0:
-                inc_mat[node_to - 1, b] = -1
-        return inc_mat
-
-    def _calc_mna_mat(self):
-        upper_mat = np.concatenate((self._y_n, self._v_adj), axis=1)
-        bottom_right_mat = np.zeros((self._v_adj.shape[1], self._v_adj.shape[1]))
-        lower_mat = np.concatenate((self._v_adj.T, bottom_right_mat), axis=1)
-        return np.concatenate((upper_mat, lower_mat), axis=0)
-
-    def _calc_i_n(self):
-        current_src_branch = self._data_arr[self._data_arr[:, 0] == 20, :]
-        i_n = np.zeros(self.no_nodes)
-        for idx in range(0, current_src_branch.shape[0]):
-            node_from = int(current_src_branch[idx, 1])
-            node_to = int(current_src_branch[idx, 2])
-            if node_from != 0:
-                i_n[node_from - 1] -= current_src_branch[idx, 3]
-            if node_to != 0:
-                i_n[node_to - 1] += current_src_branch[idx, 3]
-        return i_n
-
-    def _calc_y_b(self):
-        y_b = np.zeros((self.no_branches, self.no_branches))
-        for idx in range(0, self.no_branches):
-            if self._data_arr[idx, 0] == 0:
-                y_b[idx, idx] = 1 / self._data_arr[idx, 3]
-        return y_b
-
-    def _calc_i_b(self):
-        i_b = np.zeros(self.no_branches)
-        cur_src_mask = self._data_arr[:, 0] == 20
-        i_b[cur_src_mask] = self._data_arr[cur_src_mask][:, 3]
-        volt_src_mask = self._data_arr[:, 0] == 10
-        i_b[volt_src_mask] = self._i_v_s
-        i_b += self._y_b @ self.v_b
-        return i_b
-
-    def _branch_result_dataframe(self):
-        final_df = self.data_df.copy()
-        final_df['Voltage (V) '] = self.v_b
-        final_df['Current (A) '] = self.i_b
-        return final_df
 
 
 class TimeDomainCircuit():

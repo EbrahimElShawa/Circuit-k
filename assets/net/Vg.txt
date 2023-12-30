@@ -8,12 +8,3 @@ Frequency
 50
 Angle
 0
-
-
-```
-from to
-is  mag  ramp
-vs  mag ramp
-r l c  mag
-ac type ramp frq angle , eq
-```
