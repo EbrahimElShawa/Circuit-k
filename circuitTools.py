@@ -7,6 +7,7 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 from sympy import symbols, sympify
+import openpyxl
 
 
 def picture(cirucit):
@@ -31,7 +32,8 @@ def picture(cirucit):
 
     for branch0, branch1, branch2, branch3 in sorted_a:
 
-        if (branch1 == branch2 - 1 or branch2 == branch1 - 1) and (branch1,branch2) not in last_branchs and (branch2,branch1) not in last_branchs:
+        if (branch1 == branch2 - 1 or branch2 == branch1 - 1) and (branch1, branch2) not in last_branchs and (
+        branch2, branch1) not in last_branchs:
 
             if branch0 == 0:
                 circuit.add(
@@ -184,19 +186,18 @@ def picture(cirucit):
 
 def excel(circuit):
     # Specify the file name
-    file_name = 'analysis.xlsx'
+    file_path = 'assets/result/analysis.xlsx'
     # Create ExcelWriter object
-    with pd.ExcelWriter(file_name) as writer:
+    with pd.ExcelWriter(file_path) as writer:
         # Store each DataFrame in a separate sheet
         circuit._circuit.branch_voltages.to_excel(writer, sheet_name='Branches_Voltages')
         circuit._circuit.node_voltages.to_excel(writer, sheet_name='Nodes_Voltages')
         circuit._circuit.currents.to_excel(writer, sheet_name='Branches_Currents')
 
     if os.name == 'nt':  # Check if the operating system is Windows
-        os.startfile(file_name)
+        os.system(f'start excel "{file_path}"')
     else:  # For other operating systems like MacOS or Linux
-        opener = 'open' if sys.platform == 'darwin' else 'xdg-open'
-        subprocess.call([opener, file_name])
+        os.system(f'xdg-open "{file_path}"')
 
 
 def plot_branch(cirucit, select, n0=-1, n1=-1, xmin=0, xmax=-1):
@@ -216,20 +217,20 @@ def plot_branch(cirucit, select, n0=-1, n1=-1, xmin=0, xmax=-1):
     if select == 0:
         fig, axs = plt.subplots(1, 2)
 
-        i = list(cirucit._circuit.currents.columns)[n0-1]
+        i = list(cirucit._circuit.currents.columns)[n0 - 1]
         axs[0].set_title(i + " diagram", fontdict=font1)
         axs[0].set_xlabel("Time (seconds)", fontdict=font2)
         axs[0].set_ylabel("Amplitude (A)", fontdict=font2)
         axs[0].grid(color='black', linestyle='--', linewidth=0.5)
-        axs[0].plot(cirucit._circuit.t_vec, cirucit._circuit.currents.iloc[:, n0-1])
+        axs[0].plot(cirucit._circuit.t_vec, cirucit._circuit.currents.iloc[:, n0 - 1])
         axs[0].set_xlim(xmin, xmax)
 
-        v = list(cirucit._circuit.branch_voltages.columns)[n0-1]
+        v = list(cirucit._circuit.branch_voltages.columns)[n0 - 1]
         axs[1].set_title(v + " diagram", fontdict=font1)
         axs[1].set_xlabel("Time (seconds)", fontdict=font2)
         axs[1].set_ylabel("Amplitude (V)", fontdict=font2)
         axs[1].grid(color='black', linestyle='--', linewidth=0.5)
-        axs[1].plot(cirucit._circuit.t_vec, cirucit._circuit.branch_voltages.iloc[:, n0-1])
+        axs[1].plot(cirucit._circuit.t_vec, cirucit._circuit.branch_voltages.iloc[:, n0 - 1])
         axs[1].set_xlim(xmin, xmax)
 
     if select == 1:

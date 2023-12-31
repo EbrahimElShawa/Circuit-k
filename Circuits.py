@@ -41,7 +41,7 @@ class Circuit:
             return self._circuit.currents
 
 
-class TimeDomainCircuit():
+class TimeDomainCircuit:
     comp_types = {'R': 0, 'L': 1, 'C': 2, 'V': 10, 'I': 20}
 
     def __init__(self, data_file):
@@ -159,7 +159,7 @@ class TimeDomainCircuit():
                     sources[idx, bf_ramp] = slope * self.t_vec[bf_ramp]
                     sources[idx, aft_ramp] = mag
 
-            elif list(source[0].loc[1])[0] == 'WAVE':
+            elif list(source[0].loc[1])[0] == 'SINE':
                 frq = float(list(source[0].loc[7])[0])
                 ang = float(list(source[0].loc[9])[0])
                 w = 2 * pi * frq
@@ -308,8 +308,8 @@ class TimeDomainCircuit():
         for nth_iter in range(len(self.t_vec)):
             cur_time = nth_iter / (self.t_max / self.time_step)
             percentage = (cur_time / self.t_max) * 100
-         #   print(f"{cur_time} second ------ {percentage} %")
-            progressBar.updtae(percentage,cur_time)
+            print(f"{cur_time} second ------ {percentage} %")
+            progressBar.updtae(percentage, cur_time)
             i_n_kth = self._calc_i_n_nth(ind_cur_inj_nth, cap_cur_inj_nth, nth_iter)
             rhs_nth = np.concatenate((i_n_kth, self._v_s[:, nth_iter]))
             ans_nth = np.linalg.solve(self._mna_mat, rhs_nth)

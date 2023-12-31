@@ -1,12 +1,10 @@
-from pathlib import Path
 import tkinter as tk
 from tkinter import Button, PhotoImage, ttk
 import Secondary_Interfaces
-from create_files import delete_files
 
 widgets_sets_count = 0
 widgets_set = []
-ASSETS_PATH = Path(".\\assets")
+ASSETS_PATH = r"./assets/"
 
 
 def add_fields(window):
@@ -30,7 +28,7 @@ def add_fields(window):
                                            values=['R', 'L', 'C', 'Equation', 'Vdc', 'Idc', 'AC'])
     component_label = tk.Label(window, text=f"{widgets_sets_count + 1}", bg="#D9D9D9",
                                font=('Times New Roman', 15, 'bold'), foreground="#003049")
-    remove_button_image = PhotoImage(file=ASSETS_PATH / "frame0\\button_5.png")
+    remove_button_image = PhotoImage(file=ASSETS_PATH + "frame0/button_5.png")
     remove_button = Button(image=remove_button_image, borderwidth=0, command=lambda: remove(widget_set))
     remove_button.image = remove_button_image  # :)    Keeping a reference to the image for newly created buttons
     # Because only once can an Image be an instance for a button (can't be for multiple buttons)
@@ -43,7 +41,8 @@ def add_fields(window):
     component_label.place(x=60, y=new_y - 2)  # Minor adjustment to y-axis
 
     component_type_combobox.bind("<<ComboboxSelected>>",
-                                 lambda event: Secondary_Interfaces.set_values_window(window, index,
+                                 lambda event: Secondary_Interfaces.set_values_window(window,
+                                                                                      widgets_set.index(widget_set),
                                                                                       component_type_combobox.get()))
     Secondary_Interfaces.branches = int(component_label.cget("text"))
 
@@ -58,11 +57,18 @@ def add_fields(window):
     widget_set = (from_entry, to_entry, component_type_combobox, remove_button, component_label)
     widgets_sets_count += 1
     widgets_set.append(widget_set)
-    index = widgets_set.index(widget_set)
 
 
 def process(window):
+    print("checking that all boxes filled")
+    print(Secondary_Interfaces.magnitude_list, Secondary_Interfaces.angle_list, Secondary_Interfaces.freq_list,
+          Secondary_Interfaces.component_list
+          , Secondary_Interfaces.ramp_time_list, Secondary_Interfaces.wave_type_list, Secondary_Interfaces.nodes_list)
     global widgets_set
+
+    if len(widgets_set) == 0:
+        return
+
     for i, a in enumerate(widgets_set):
         Secondary_Interfaces.nodes_list[i] = (a[0].get(), a[1].get())
 
@@ -77,7 +83,7 @@ def process(window):
 
     for value in Secondary_Interfaces.ramp_time_list:
         if value == '':
-            print("There are boxes")
+            print("There are empty boxes")
             return
 
     Secondary_Interfaces.max_node()
@@ -88,15 +94,20 @@ def remove(widgets):
     global widgets_set, widgets_sets_count
     index = widgets_set.index(widgets)
 
+    print(index)
+
     for widget in widgets:
         widget.destroy()
     widgets_set.remove(widgets)
+    Secondary_Interfaces.nodes_list.pop(index)
     Secondary_Interfaces.magnitude_list.pop(index)
     Secondary_Interfaces.component_list.pop(index)
     Secondary_Interfaces.wave_type_list.pop(index)
     Secondary_Interfaces.freq_list.pop(index)
     Secondary_Interfaces.angle_list.pop(index)
     Secondary_Interfaces.ramp_time_list.pop(index)
+
+    print(Secondary_Interfaces.magnitude_list)
 
     if widgets_sets_count == 1:
         clear_all()
@@ -130,5 +141,3 @@ def clear_all():
     Secondary_Interfaces.freq_list = []
     Secondary_Interfaces.wave_type_list = []
     Secondary_Interfaces.angle_list = []
-
-    delete_files()
