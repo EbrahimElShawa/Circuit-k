@@ -27,13 +27,11 @@ def picture(cirucit):
     k = 1  # for r,l,c
 
     # to make it parallel when they have the same branch's nodes and length 1
-    last_branch2 = -1
-    last_branch1 = -1
+    last_branchs = []
 
     for branch0, branch1, branch2, branch3 in sorted_a:
-        print(branch0, branch1, branch2, branch3)
-        if (branch1 == branch2 - 1 or branch2 == branch1 - 1) and (
-                branch1 != last_branch1 or branch2 != last_branch2):
+
+        if (branch1 == branch2 - 1 or branch2 == branch1 - 1) and (branch1,branch2) not in last_branchs and (branch2,branch1) not in last_branchs:
 
             if branch0 == 0:
                 circuit.add(
@@ -82,6 +80,8 @@ def picture(cirucit):
                 else:
                     source = circuit.add(elm.SourceI().right().label('AC Current', loc='bottom', fontsize=15)
                                          .at((4 * branch1, 0)).to((4 * branch2, 0)))
+            last_branchs.append((branch1, branch2))
+
 
         else:
 
@@ -168,7 +168,7 @@ def picture(cirucit):
                 circuit.add(draw.Line().at((4 * branch1 + r, 0)).to((4 * branch1 + r, -v)))
 
                 if branch1 > branch2:
-                    source = circuit.add(elm.SourceI().left().label('AC currenr', loc='bottom', fontsize=15)
+                    source = circuit.add(elm.SourceI().left().label('AC current', loc='bottom', fontsize=15)
                                          .at((4 * branch1 + r, -v)).to((4 * branch2 - r, -v)))
                 else:
                     source = circuit.add(elm.SourceI().right().label('AC Current', loc='bottom', fontsize=15)
@@ -179,11 +179,6 @@ def picture(cirucit):
                 circuit.add(draw.Line().at((4 * branch1, 0)).to((4 * branch1 - r, 0)))
                 r += 0.1
 
-        last_branch1 = branch1
-        last_branch2 = branch2
-
-    print(arr)
-    print(cirucit._circuit.data_df)
     circuit.draw()
 
 
@@ -221,20 +216,20 @@ def plot_branch(cirucit, select, n0=-1, n1=-1, xmin=0, xmax=-1):
     if select == 0:
         fig, axs = plt.subplots(1, 2)
 
-        i = list(cirucit._circuit.currents.columns)[n0]
+        i = list(cirucit._circuit.currents.columns)[n0-1]
         axs[0].set_title(i + " diagram", fontdict=font1)
         axs[0].set_xlabel("Time (seconds)", fontdict=font2)
         axs[0].set_ylabel("Amplitude (A)", fontdict=font2)
         axs[0].grid(color='black', linestyle='--', linewidth=0.5)
-        axs[0].plot(cirucit._circuit.t_vec, cirucit._circuit.currents.iloc[:, n0])
+        axs[0].plot(cirucit._circuit.t_vec, cirucit._circuit.currents.iloc[:, n0-1])
         axs[0].set_xlim(xmin, xmax)
 
-        v = list(cirucit._circuit.branch_voltages.columns)[n0]
+        v = list(cirucit._circuit.branch_voltages.columns)[n0-1]
         axs[1].set_title(v + " diagram", fontdict=font1)
         axs[1].set_xlabel("Time (seconds)", fontdict=font2)
         axs[1].set_ylabel("Amplitude (V)", fontdict=font2)
         axs[1].grid(color='black', linestyle='--', linewidth=0.5)
-        axs[1].plot(cirucit._circuit.t_vec, cirucit._circuit.branch_voltages.iloc[:, n0])
+        axs[1].plot(cirucit._circuit.t_vec, cirucit._circuit.branch_voltages.iloc[:, n0-1])
         axs[1].set_xlim(xmin, xmax)
 
     if select == 1:
