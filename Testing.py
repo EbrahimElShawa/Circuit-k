@@ -9,4 +9,6 @@ if __name__ == '__main__':
     cir = Circuit("assets/net/net.txt")
     # circuitTools.picture(cir)
     # circuitTools.plot_branch(cir, 2, 1, 2, -1, -1)
-    circuitTools.excel(cir)
+    # circuitTools.excel(cir)
+    # circuitTools.picture("assets/net/net.txt")
+    circuitTools.plot_branch(cir,1, 1, -1, 0, 2)

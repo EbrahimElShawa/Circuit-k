@@ -250,7 +250,7 @@ def analyse(domain_window, window, t_max, t_step):
                                                             tmax_branch_entry.get()))
     plot_node_button_image = PhotoImage(file=frame6_path + "button_2.png")
     plot_node_button = Button(result_window, image=plot_node_button_image, borderwidth=0,
-                              command=lambda: plot_node(node_box.get(), tmax_node_entry.get(), tmax_node_entry.get()))
+                              command=lambda: plot_node(node_box.get(), tmin_node_entry.get(), tmax_node_entry.get()))
     plot_from_to_button_image = PhotoImage(file=frame6_path + "button_3.png")
     plot_from_to_button = Button(result_window, image=plot_from_to_button_image, borderwidth=0,
                                  command=lambda: plot_from_to(from_box.get(), to_box.get(),

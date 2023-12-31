@@ -9,13 +9,51 @@ import matplotlib.pyplot as plt
 from sympy import symbols, sympify
 import openpyxl
 
+comp_types = {'R': 0, 'L': 1, 'C': 2, 'V': 10, 'I': 20}
 
-def picture(cirucit):
+
+def unique_nodes(data_df):
+    user_nodes_flat = pd.concat([data_df['From Node'], data_df['To Node']])
+    return user_nodes_flat.unique()
+
+
+def trandform_nodes(unique_user_nodes):
+    nodes_transf = {'0': 0}
+    z = 0
+    for user_node in unique_user_nodes:
+        if user_node != '0':
+            nodes_transf[user_node] = z
+            z = z + 1
+    return nodes_transf
+
+
+def _df_to_array(data_df, nodes_transf):
+    data_transf = data_df.copy()
+    # to convert '0' to 0 ( object to int ) in data_trans
+    data_transf.replace({'From Node': nodes_transf, 'To Node': nodes_transf}, inplace=True)
+    data_transf['Component Name'] = data_df['Component Name'].map(
+        lambda name: comp_types[name[0]])
+    return np.array(data_transf, dtype=float)
+
+
+def picture(data_file):
+    data_df = pd.read_csv(data_file, sep=' ',
+                          names=['Component Name', 'From Node', 'To Node', 'Value'])
+
+    unique_user_nodes = unique_nodes(data_df)
+
+    nodes_transf = trandform_nodes(unique_user_nodes)
+    print(nodes_transf)
+
+    data_arr = _df_to_array(data_df, nodes_transf)
+    print(data_arr)
+
     elm = schemdraw.elements
     arr = []
-    for branch in cirucit._circuit._data_arr:
+    for branch in data_arr:
         arr.append((branch[0], branch[1], branch[2], branch[3]))
     sorted_a = sorted(arr, key=lambda x: abs(x[1] - x[2]) and x[1])
+    print(sorted_a)
 
     circuit = Drawing()
     circuit.add(draw.Ground().at((-1, 0)))
@@ -28,12 +66,12 @@ def picture(cirucit):
     k = 1  # for r,l,c
 
     # to make it parallel when they have the same branch's nodes and length 1
-    last_branchs = []
+    last_branches = []
 
     for branch0, branch1, branch2, branch3 in sorted_a:
 
-        if (branch1 == branch2 - 1 or branch2 == branch1 - 1) and (branch1, branch2) not in last_branchs and (
-        branch2, branch1) not in last_branchs:
+        if (branch1 == branch2 - 1 or branch2 == branch1 - 1) and (branch1, branch2) not in last_branches and (
+                branch2, branch1) not in last_branches:
 
             if branch0 == 0:
                 circuit.add(
@@ -50,39 +88,39 @@ def picture(cirucit):
             elif branch0 == 10 and np.isnan(branch3):
                 v += 1
                 if branch1 > branch2:
-                    source = circuit.add(elm.SourceSin().left().label('AC Voltage', loc='bottom', fontsize=15)
-                                         .at((4 * branch1, 0)).to((4 * branch2, 0)))
+                    circuit.add(elm.SourceSin().left().label('AC Voltage', loc='bottom', fontsize=15)
+                                .at((4 * branch1, 0)).to((4 * branch2, 0)))
                 else:
-                    source = circuit.add(elm.SourceSin().right().label('AC Voltage', loc='bottom', fontsize=15)
-                                         .at((4 * branch1, 0)).to((4 * branch2, 0)))
+                    circuit.add(elm.SourceSin().right().label('AC Voltage', loc='bottom', fontsize=15)
+                                .at((4 * branch1, 0)).to((4 * branch2, 0)))
 
             elif branch0 == 10:
 
                 if branch1 > branch2:
-                    source = circuit.add(elm.SourceV().left().label(str(branch3) + 'V', loc='bottom', fontsize=15)
-                                         .at((4 * branch1, 0)).to((4 * branch2, 0)))
+                    circuit.add(elm.SourceV().left().label(str(branch3) + 'V', loc='bottom', fontsize=15)
+                                .at((4 * branch1, 0)).to((4 * branch2, 0)))
                 else:
-                    source = circuit.add(elm.SourceV().right().label(str(branch3) + 'V', loc='bottom', fontsize=15)
-                                         .at((4 * branch1, 0)).to((4 * branch2, 0)))
+                    circuit.add(elm.SourceV().right().label(str(branch3) + 'V', loc='bottom', fontsize=15)
+                                .at((4 * branch1, 0)).to((4 * branch2, 0)))
 
             elif branch0 == 20:
 
                 if branch1 > branch2:
-                    source = circuit.add(elm.SourceI().left().label(str(branch3) + 'A', loc='bottom', fontsize=15)
-                                         .at((4 * branch1, 0)).to((4 * branch2, 0)))
+                    circuit.add(elm.SourceI().left().label(str(branch3) + 'A', loc='bottom', fontsize=15)
+                                .at((4 * branch1, 0)).to((4 * branch2, 0)))
                 else:
-                    source = circuit.add(elm.SourceI().right().label(str(branch3) + 'A', loc='bottom', fontsize=15)
-                                         .at((4 * branch1, 0)).to((4 * branch2, 0)))
+                    circuit.add(elm.SourceI().right().label(str(branch3) + 'A', loc='bottom', fontsize=15)
+                                .at((4 * branch1, 0)).to((4 * branch2, 0)))
 
             elif branch0 == 20 and np.isnan(branch3):
 
                 if branch1 > branch2:
-                    source = circuit.add(elm.SourceI().left().label('AC Current', loc='bottom', fontsize=15)
-                                         .at((4 * branch1, 0)).to((4 * branch2, 0)))
+                    circuit.add(elm.SourceI().left().label('AC Current', loc='bottom', fontsize=15)
+                                .at((4 * branch1, 0)).to((4 * branch2, 0)))
                 else:
-                    source = circuit.add(elm.SourceI().right().label('AC Current', loc='bottom', fontsize=15)
-                                         .at((4 * branch1, 0)).to((4 * branch2, 0)))
-            last_branchs.append((branch1, branch2))
+                    circuit.add(elm.SourceI().right().label('AC Current', loc='bottom', fontsize=15)
+                                .at((4 * branch1, 0)).to((4 * branch2, 0)))
+            last_branches.append((branch1, branch2))
 
 
         else:
@@ -122,11 +160,11 @@ def picture(cirucit):
                 circuit.add(draw.Line().at((4 * branch1 + r, 0)).to((4 * branch1 + r, -v)))
 
                 if branch1 > branch2:
-                    source = circuit.add(elm.SourceSin().left().label('AC Voltage', loc='bottom', fontsize=15)
-                                         .at((4 * branch1 + r, -v)).to((4 * branch2 - r, -v)))
+                    circuit.add(elm.SourceSin().left().label('AC Voltage', loc='bottom', fontsize=15)
+                                .at((4 * branch1 + r, -v)).to((4 * branch2 - r, -v)))
                 else:
-                    source = circuit.add(elm.SourceSin().right().label('AC Voltage', loc='bottom', fontsize=15)
-                                         .at((4 * branch1 + r, -v)).to((4 * branch2 - r, -v)))
+                    circuit.add(elm.SourceSin().right().label('AC Voltage', loc='bottom', fontsize=15)
+                                .at((4 * branch1 + r, -v)).to((4 * branch2 - r, -v)))
 
                 circuit.add(draw.Line().at((4 * branch2 - r, -v)).to((4 * branch2 - r, 0)))
                 circuit.add(draw.Line().at((4 * branch1, 0)).to((4 * branch1 + r, 0)))
@@ -138,11 +176,11 @@ def picture(cirucit):
                 circuit.add(draw.Line().at((4 * branch1 + r, 0)).to((4 * branch1 + r, -v)))
 
                 if branch1 > branch2:
-                    source = circuit.add(elm.SourceV().left().label(str(branch3), loc='bottom', fontsize=15)
-                                         .at((4 * branch1 + r, -v)).to((4 * branch2 - r, -v)))
+                    circuit.add(elm.SourceV().left().label(str(branch3), loc='bottom', fontsize=15)
+                                .at((4 * branch1 + r, -v)).to((4 * branch2 - r, -v)))
                 else:
-                    source = circuit.add(elm.SourceV().right().label(str(branch3), loc='bottom', fontsize=15)
-                                         .at((4 * branch1 + r, -v)).to((4 * branch2 - r, -v)))
+                    circuit.add(elm.SourceV().right().label(str(branch3), loc='bottom', fontsize=15)
+                                .at((4 * branch1 + r, -v)).to((4 * branch2 - r, -v)))
 
                 circuit.add(draw.Line().at((4 * branch2 - r, -v)).to((4 * branch2 - r, 0)))
                 circuit.add(draw.Line().at((4 * branch1, 0)).to((4 * branch1 + r, 0)))
@@ -154,11 +192,11 @@ def picture(cirucit):
                 circuit.add(draw.Line().at((4 * branch1 + r, 0)).to((4 * branch1 + r, -v)))
 
                 if branch1 > branch2:
-                    source = circuit.add(elm.SourceI().left().label(str(branch3), loc='bottom', fontsize=15)
-                                         .at((4 * branch1 + r, -v)).to((4 * branch2 - r, -v)))
+                    circuit.add(elm.SourceI().left().label(str(branch3), loc='bottom', fontsize=15)
+                                .at((4 * branch1 + r, -v)).to((4 * branch2 - r, -v)))
                 else:
-                    source = circuit.add(elm.SourceI().right().label(str(branch3), loc='bottom', fontsize=15)
-                                         .at((4 * branch1 + r, -v)).to((4 * branch2 - r, -v)))
+                    circuit.add(elm.SourceI().right().label(str(branch3), loc='bottom', fontsize=15)
+                                .at((4 * branch1 + r, -v)).to((4 * branch2 - r, -v)))
 
                 circuit.add(draw.Line().at((4 * branch2 - r, -v)).to((4 * branch2 - r, 0)))
                 circuit.add(draw.Line().at((4 * branch1, 0)).to((4 * branch1 + r, 0)))
@@ -170,11 +208,11 @@ def picture(cirucit):
                 circuit.add(draw.Line().at((4 * branch1 + r, 0)).to((4 * branch1 + r, -v)))
 
                 if branch1 > branch2:
-                    source = circuit.add(elm.SourceI().left().label('AC current', loc='bottom', fontsize=15)
-                                         .at((4 * branch1 + r, -v)).to((4 * branch2 - r, -v)))
+                    circuit.add(elm.SourceI().left().label('AC current', loc='bottom', fontsize=15)
+                                .at((4 * branch1 + r, -v)).to((4 * branch2 - r, -v)))
                 else:
-                    source = circuit.add(elm.SourceI().right().label('AC Current', loc='bottom', fontsize=15)
-                                         .at((4 * branch1 + r, -v)).to((4 * branch2 - r, -v)))
+                    circuit.add(elm.SourceI().right().label('AC Current', loc='bottom', fontsize=15)
+                                .at((4 * branch1 + r, -v)).to((4 * branch2 - r, -v)))
 
                 circuit.add(draw.Line().at((4 * branch2 - r, -v)).to((4 * branch2 - r, 0)))
                 circuit.add(draw.Line().at((4 * branch1, 0)).to((4 * branch1 + r, 0)))
