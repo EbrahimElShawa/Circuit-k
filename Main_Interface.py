@@ -1,17 +1,20 @@
 from pathlib import Path
-import tkinter as tk
-from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
-import Utilites, Secondary_Interfaces
+from tkinter import Tk, Canvas, Button, PhotoImage
+import matplotlib.pyplot as plt
+
+import Utilites
+import circuitTools
+
 
 ASSETS_PATH = Path(".\\assets\\frame0")
 
 
 def main():
     window = Tk()
-    window.iconbitmap(ASSETS_PATH / "Tomato.ico")
+    icon = PhotoImage(file=ASSETS_PATH / 'Tomato.png')
+    window.wm_iconphoto(True, icon)
     window.title('Panadora')
-    window.geometry("630x550")
-
+    window.geometry("630x550+50+100")
     canvas = Canvas(window, bg="#FFFFFF", height=550, width=630, bd=0)
     canvas.place(x=0, y=0)
 
@@ -54,26 +57,34 @@ def main():
     # Buttons:
     process_button_image = PhotoImage(file=ASSETS_PATH / "button_1.png")
     process_button = Button(image=process_button_image, borderwidth=0,
-                            command=lambda: Utilites.process(window), relief="flat")
+                            command=lambda: Utilites.process(window))
     process_button.place(x=317, y=497, width=128.0, height=46.0)
 
     draw_circuit_button_image = PhotoImage(file=ASSETS_PATH / "button_2.png")
     draw_circuit_button = Button(image=draw_circuit_button_image, borderwidth=0,
-                                 command=lambda: print("button_2 clicked"), relief="flat")
+                                 command=lambda: print("button_2 clicked"))
     draw_circuit_button.place(x=58, y=497, width=196.0, height=46.0)
 
     clear_all_button_image = PhotoImage(file=ASSETS_PATH / "button_3.png")
     clear_all_button = Button(image=clear_all_button_image, borderwidth=0,
-                              command=lambda: Utilites.clear_all(), relief="flat")
+                              command=lambda: Utilites.clear_all())
     clear_all_button.place(x=369.0, y=65, width=107.0, height=41.0)
 
     add_field_button_image = PhotoImage(file=ASSETS_PATH / "button_4.png")
     add_field_button = Button(image=add_field_button_image, borderwidth=0,
-                              command=lambda: Utilites.add_fields(window), relief="flat")
+                              command=lambda: Utilites.add_fields(window))
     add_field_button.place(x=44, y=441, width=154.0, height=30.0)
 
     window.resizable(False, False)
     window.mainloop()
+
+
+def run_circuit():
+    from create_files import create
+    from Circuits import Circuit
+    create()
+    plt.switch_backend('TkAgg')  # Replace Pycharm Tkinter with Anti-Grain Geometry
+    my_circuit = Circuit("assets/net/net.txt")
 
 
 if __name__ == '__main__':

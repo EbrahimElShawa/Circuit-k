@@ -22,3 +22,6 @@ def main(max):
 
     percentLabel = Label(window, textvariable=percent).pack()
     taskLabel = Label(window, textvariable=text).pack()
+
+
+# Delay before focusing on another widget

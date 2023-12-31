@@ -1,9 +1,9 @@
 from pathlib import Path
 import tkinter as tk
-from tkinter import Button, PhotoImage, ttk, Canvas
+from tkinter import Button, PhotoImage, ttk
 import Secondary_Interfaces
+from create_files import delete_files
 
-OUTPUT_PATH = Path(__file__).parent
 widgets_sets_count = 0
 widgets_set = []
 ASSETS_PATH = Path(".\\assets")
@@ -27,7 +27,7 @@ def add_fields(window):
     from_entry = tk.Entry(window, bg="#D9D9D9", foreground="#0500FF", font=('Times New Roman', 15, 'bold'))
     to_entry = tk.Entry(window, bg="#D9D9D9", foreground="#0500FF", font=('Times New Roman', 15, 'bold'))
     component_type_combobox = ttk.Combobox(window, state='readonly',
-                                           values=['R', 'L', 'C', 'Vdc', 'Idc', 'AC'])
+                                           values=['R', 'L', 'C', 'Equation', 'Vdc', 'Idc', 'AC'])
     component_label = tk.Label(window, text=f"{widgets_sets_count + 1}", bg="#D9D9D9",
                                font=('Times New Roman', 15, 'bold'), foreground="#003049")
     remove_button_image = PhotoImage(file=ASSETS_PATH / "frame0\\button_5.png")
@@ -42,12 +42,9 @@ def add_fields(window):
     remove_button.place(x=369, y=new_y, width=107.0, height=22.0)
     component_label.place(x=60, y=new_y - 2)  # Minor adjustment to y-axis
 
-    # from_entry.bind("<FocusOut>", lambda event: from_list_append(from_entry.get()))
-    # to_entry.bind("<FocusOut>", lambda event: append_and_compare(to_entry.get(), set_index))
     component_type_combobox.bind("<<ComboboxSelected>>",
-                                 lambda event: Secondary_Interfaces.set_values_window(window,
-                                                                                      component_type_combobox.get(),
-                                                                                      index))
+                                 lambda event: Secondary_Interfaces.set_values_window(window, index,
+                                                                                      component_type_combobox.get()))
     Secondary_Interfaces.branches = int(component_label.cget("text"))
 
     Secondary_Interfaces.magnitude_list.append('')
@@ -64,30 +61,11 @@ def add_fields(window):
     index = widgets_set.index(widget_set)
 
 
-def from_list_append(string_value):
-    global from_list
-    try:
-        _ = int(string_value)
-    except ValueError:
-        print("Please enter a valid Number")
-    from_list.append(string_value)
-
-
-def to_list_append(string_value):
-    global to_list
-    try:
-        _ = int(string_value)
-    except ValueError:
-        print("Please enter a valid Number")
-    to_list.append(string_value)
-
-
 def process(window):
     global widgets_set
     for i, a in enumerate(widgets_set):
         Secondary_Interfaces.nodes_list[i] = (a[0].get(), a[1].get())
-    print(Secondary_Interfaces.nodes_list)
-    # try execpt
+
     for value in Secondary_Interfaces.nodes_list:
         if value[0] == '' or value[1] == '':
             print("There are empty boxes")
@@ -107,9 +85,9 @@ def process(window):
 
 
 def remove(widgets):
-    global widgets_set, widgets_sets_count, from_list, to_list
-    # w_index = widgets_set.index((from_entry, to_entry, type_combobox, remove_button, component_label))
+    global widgets_set, widgets_sets_count
     index = widgets_set.index(widgets)
+
     for widget in widgets:
         widget.destroy()
     widgets_set.remove(widgets)
@@ -119,10 +97,10 @@ def remove(widgets):
     Secondary_Interfaces.freq_list.pop(index)
     Secondary_Interfaces.angle_list.pop(index)
     Secondary_Interfaces.ramp_time_list.pop(index)
+
     if widgets_sets_count == 1:
         clear_all()
         return
-
     widgets_sets_count -= 1
     Secondary_Interfaces.branches -= 1
 
@@ -153,19 +131,4 @@ def clear_all():
     Secondary_Interfaces.wave_type_list = []
     Secondary_Interfaces.angle_list = []
 
-
-def node_comparison(index):
-    try:
-        if from_list[index] > to_list[index]:
-            Secondary_Interfaces.set_nodes(int(from_list[index]))
-        else:
-            Secondary_Interfaces.set_nodes(int(to_list[index]))
-    except IndexError:
-        pass
-
-
-def append_and_compare(string_value, index):
-    to_list_append(string_value)
-    node_comparison(index)
-
-
+    delete_files()
