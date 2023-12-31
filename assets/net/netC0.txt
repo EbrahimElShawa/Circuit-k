@@ -1,0 +1,10 @@
+Type
+-1
+Ramp up time
+-1
+Magnitude
+12
+Frequency
+-1
+Phase
+-1
