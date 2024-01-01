@@ -1,0 +1,10 @@
+Type
+SINE
+Ramp_up_time
+0.05
+Magnitude
+100
+Frequency
+50
+Phase
+0

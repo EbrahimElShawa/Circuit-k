@@ -22,9 +22,8 @@ def netlist():
             comp_name = component_list[i] + str(i)
             if component_list[i] not in ["R", "L", "C"]:
                 create_source_file(i)
-                file.write(comp_name + " " + nodes_list[i][0] + " " + nodes_list[i][1] + "\n")
-            else:
-                file.write(comp_name + " " + nodes_list[i][0] + " " + nodes_list[i][1] + " " + magnitude_list[i] + "\n")
+
+            file.write(comp_name + " " + nodes_list[i][0] + " " + nodes_list[i][1] + " " + magnitude_list[i] + "\n")
 
 
 def create_source_file(index):

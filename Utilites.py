@@ -142,6 +142,7 @@ def clear_all():
     Secondary_Interfaces.nodes = 0
     Secondary_Interfaces.branches = 0
     widgets_set = []
+    Secondary_Interfaces.nodes_list = []
     Secondary_Interfaces.component_list = []
     Secondary_Interfaces.magnitude_list = []
     Secondary_Interfaces.ramp_time_list = []

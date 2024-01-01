@@ -1,9 +1,9 @@
 Type
 DC
 Ramp_up_time
-0.5
+0.05
 Magnitude
-12
+50
 Frequency
 -1
 Phase
