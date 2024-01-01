@@ -8,7 +8,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sympy import symbols, sympify
 import openpyxl
-comp_types = {'Res': 0, 'Lcl': 1, 'Cap': 2, 'Vdc': 10, 'Vac': 15, 'Idc': 20, 'Iac': 25, 'Ieq': 30, 'Veq': 35}
+comp_types = {'R': 0, 'L': 1, 'C': 2, 'Vdc': 10, 'Vac': 15, 'Idc': 20, 'Iac': 25, 'Ieq': 30, 'Veq': 35}
 
 
 def unique_nodes(data_df):
@@ -31,7 +31,7 @@ def _df_to_array(data_df, nodes_transf):
     # to convert '0' to 0 ( object to int ) in data_trans
     data_transf.replace({'From Node': nodes_transf, 'To Node': nodes_transf}, inplace=True)
     data_transf['Component Name'] = data_df['Component Name'].map(
-        lambda name: comp_types[name[0:3]])
+        lambda name: comp_types[name[0:-1]])
     return np.array(data_transf, dtype=float)
 
 

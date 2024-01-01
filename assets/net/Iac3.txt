@@ -3,7 +3,7 @@ SINE
 Ramp_up_time
 0.05
 Magnitude
-20
+150
 Frequency
 50
 Phase
