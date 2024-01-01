@@ -1,5 +1,8 @@
 import tkinter as tk
 from tkinter import Canvas, ttk, PhotoImage, Button, Toplevel, Entry, Label
+
+from sympy import sympify, symbols
+
 from Main_Interface import run_circuit
 import circuitTools
 
@@ -138,8 +141,8 @@ def set_values_window(window, index, component_name):
                                     command=lambda: add_equation(values_window, window, eq_entry.get(),
                                                                  source_type_combobox.get(), index))
 
-        eq_entry.insert(0, 'Equation with a parameter t')
-        eq_entry.bind('<FocusIn>', lambda event: configure_entry(eq_entry))
+        eq_entry.insert(0, 'Equation in param t')
+        eq_entry.bind('<FocusIn>', lambda event: configure_entry(eq_entry, 'Equation with a parameter t'))
         eq_entry.bind('<Return>', lambda event: add_element_button.invoke())
 
         canvas.create_image(71.0, 28.0, image=image_1)
@@ -347,7 +350,14 @@ def add_element(values_window, window, component_name, mag, index):
 
 def add_equation(values_window, window, eq, source_type, index):
     global component_list, magnitude_list, ramp_time_list, freq_list, wave_type_list, angle_list
-    # Check here
+    try:
+        t = symbols('t')
+        expr = sympify(eq)
+        result = expr.subs(t, 1).evalf()
+        _ = float(result)
+    except ValueError:
+        print('Please enter a valid expression ( equation in t )')
+        return
     close_window(values_window, window)
 
     if source_type == 'Voltage':
@@ -407,10 +417,9 @@ def csv_file():
 def configure_entry(entry, text=''):
     if entry.get() == text:
         entry.delete(0, tk.END)
-        entry.config(fg='black')
     else:
-        entry.config(font=active_font)
         entry.selection_range(0, tk.END)
+    entry.config(font=active_font)
 
 
 def max_node():

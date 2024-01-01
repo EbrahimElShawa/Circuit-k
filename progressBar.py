@@ -2,9 +2,9 @@ from tkinter import *
 from tkinter.ttk import *
 
 
-def updtae(new_percantage, cur_sec):
+def update(new_percentage, cur_sec):
     bar['value'] = cur_sec
-    percent.set(str(round(new_percantage, 2)) + "%")
+    percent.set(str(round(new_percentage, 2)) + "%")
     text.set(str(round(cur_sec, 5)) + "/" + str(mx) + " second completed")
     window.update_idletasks()
     if bar['value'] == mx:
