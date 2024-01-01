@@ -1,11 +1,12 @@
 import tkinter as tk
-from tkinter import Canvas, ttk, PhotoImage, Button, Toplevel, Entry, Label
+from tkinter import Canvas, ttk, PhotoImage, Button, Toplevel, Entry, Label, StringVar
 
 from sympy import sympify, symbols
 
 from Main_Interface import run_circuit
 import circuitTools
 
+window, loading_window = tk.NONE, tk.NONE
 main_circuit = None
 ASSETS_PATH = r"./assets"
 idle_font = ('Times New Roman', 8, 'italic')
@@ -17,9 +18,9 @@ max_time, step = '', ''
 Dummy_Value = '-1'
 
 
-def set_values_window(window, index, component_name):
-    global ASSETS_PATH
-
+def set_values_window(w, index, component_name):
+    global ASSETS_PATH, window
+    window = w
     if component_name in ['R', 'L', 'C']:
         frame2_path = ASSETS_PATH + "/frame2/"
         values_window = Toplevel(window)
@@ -33,7 +34,7 @@ def set_values_window(window, index, component_name):
         add_element_button_image = PhotoImage(file=frame2_path + "button_1.png")
         mag_entry = Entry(values_window, bg="#D9D9D9", foreground="#780000", font=active_font)
         add_element_button = tk.Button(values_window, image=add_element_button_image, borderwidth=0,
-                                       command=lambda: add_element(values_window, window, component_name,
+                                       command=lambda: add_element(values_window, component_name,
                                                                    mag_entry.get(), index))
 
         mag_entry.focus_set()
@@ -62,7 +63,7 @@ def set_values_window(window, index, component_name):
         image_2 = PhotoImage(file=frame1_path + "image_2.png")
         add_element_button_image = PhotoImage(file=frame1_path + "button_1.png")
         add_element_button = tk.Button(values_window, image=add_element_button_image, borderwidth=0,
-                                       command=lambda: add_source(values_window, window, mag_entry.get(),
+                                       command=lambda: add_source(values_window, mag_entry.get(),
                                                                   ang_entry.get(), freq_entry.get(),
                                                                   ramp_entry.get(), source_type_combobox.get(),
                                                                   wave_type_combobox.get(), index))
@@ -109,7 +110,7 @@ def set_values_window(window, index, component_name):
         mag_entry = Entry(values_window, bg="#D9D9D9", foreground="#780000", font=active_font)
         ramp_entry = Entry(values_window, bg="#D9D9D9", foreground="#780000", font=active_font)
         add_element_button = tk.Button(values_window, image=add_element_button_image, borderwidth=0,
-                                       command=lambda: add_source(values_window, window, mag_entry.get(), -1, -1,
+                                       command=lambda: add_source(values_window, mag_entry.get(), -1, -1,
                                                                   ramp_entry.get(), component_name, "DC", index))
 
         mag_entry.focus_set()
@@ -140,7 +141,7 @@ def set_values_window(window, index, component_name):
         source_type_combobox = ttk.Combobox(values_window, state='readonly', values=['Voltage', 'Current'])
         add_element_button_image = PhotoImage(file=frame3_path + "button_1.png")
         add_element_button = Button(values_window, image=add_element_button_image, borderwidth=0,
-                                    command=lambda: add_equation(values_window, window, eq_entry.get(),
+                                    command=lambda: add_equation(values_window, eq_entry.get(),
                                                                  source_type_combobox.get(), index))
 
         initial_comment = 'Equation in param t'
@@ -157,8 +158,10 @@ def set_values_window(window, index, component_name):
         values_window.mainloop()
 
 
-def pop_up_window(window):
-    frame4_path = ASSETS_PATH + "/frame4/"
+def pop_up_window(w):
+    global window
+    window = w
+    # frame4_path = ASSETS_PATH + "/frame4/"
     pop_up = Toplevel(window)
     pop_up.title("Warning")
 
@@ -166,7 +169,7 @@ def pop_up_window(window):
     pop_up.geometry("155x80+280+535")
 
     pop_up_message = Label(pop_up, text="Max reached.")
-    close_button = Button(pop_up, borderwidth=1, text="close", command=lambda: close_window(pop_up, window))
+    close_button = Button(pop_up, borderwidth=1, text="close", command=lambda: close_window(pop_up))
     pop_up_message.place(x=15, y=15)
     close_button.place(x=107.5, y=60, width=35, height=20)
 
@@ -175,7 +178,9 @@ def pop_up_window(window):
     pop_up.mainloop()
 
 
-def process_window(window):
+def process_window(w):
+    global window
+    window = w
     frame5_path = ASSETS_PATH + "/frame5/"
     domain_window = Toplevel(window)
     domain_window.title("Domain")
@@ -207,8 +212,9 @@ def process_window(window):
     domain_window.mainloop()
 
 
-def analyse(domain_window, window, t_max, t_step):
-    global max_time, step, nodes, main_circuit
+def analyse(domain_window, w, t_max, t_step):
+    global window, max_time, step, nodes, main_circuit
+    window = w
     try:
         _, _ = float(t_max), float(t_step)
     except ValueError:
@@ -226,7 +232,7 @@ def analyse(domain_window, window, t_max, t_step):
     result_window.geometry("291x348+600+300")
     canvas = Canvas(result_window, bg="#FFFFFF", height=348, width=291, bd=0)
     canvas.place(x=0, y=0)
-    close_window(domain_window, result_window)
+    close_pop_up(domain_window, result_window)
 
     image_image_1 = PhotoImage(file=frame6_path + "image_1.png")
     image_image_2 = PhotoImage(file=frame6_path + "image_2.png")
@@ -311,7 +317,31 @@ def analyse(domain_window, window, t_max, t_step):
     result_window.mainloop()
 
 
-def add_source(values_window, window, mag, ang, freq, ramp, source_type, wave_type, index):
+def update(new_percentage, cur_sec):
+    bar['value'] = cur_sec
+    percent.set(str(round(new_percentage, 2)) + "%")
+    text.set(str(round(cur_sec, 5)) + "/" + str(max_time) + " second completed")
+    loading_window.update_idletasks()
+    if bar['value'] == float(max_time):
+        close_window(loading_window)
+
+
+def progress_bar_window():
+    global loading_window, percent, text, bar, cur
+    cur = 0
+    loading_window = Toplevel()
+    loading_window.title("Loading....")
+    percent = StringVar()
+    text = StringVar()
+
+    bar = ttk.Progressbar(loading_window, orient=tk.HORIZONTAL, length=300, mode='determinate', maximum=float(max_time))
+    bar.pack(pady=10)
+
+    Label(loading_window, textvariable=percent).pack()
+    Label(loading_window, textvariable=text).pack()
+
+
+def add_source(values_window, mag, ang, freq, ramp, source_type, wave_type, index):
     global magnitude_list, component_list, ramp_time_list, freq_list, angle_list, wave_type_list
 
     print(magnitude_list)
@@ -324,7 +354,7 @@ def add_source(values_window, window, mag, ang, freq, ramp, source_type, wave_ty
     except ValueError:
         print('Please enter a valid number')
         return
-    close_window(values_window, window)
+    close_window(values_window)
 
     magnitude_list[index] = mag
     component_list[index] = source_type
@@ -334,14 +364,14 @@ def add_source(values_window, window, mag, ang, freq, ramp, source_type, wave_ty
     angle_list[index] = ang
 
 
-def add_element(values_window, window, component_name, mag, index):
+def add_element(values_window, component_name, mag, index):
     global component_list, magnitude_list, ramp_time_list, freq_list, wave_type_list, angle_list
     try:
         _ = float(mag)
     except ValueError:
         print('Please enter a valid number')
         return
-    close_window(values_window, window)
+    close_window(values_window)
 
     print(magnitude_list)
     print(index)
@@ -354,7 +384,7 @@ def add_element(values_window, window, component_name, mag, index):
     angle_list[index] = Dummy_Value
 
 
-def add_equation(values_window, window, eq, source_type, index):
+def add_equation(values_window, eq, source_type, index):
     global component_list, magnitude_list, ramp_time_list, freq_list, wave_type_list, angle_list
     try:
         t = symbols('t')
@@ -364,7 +394,7 @@ def add_equation(values_window, window, eq, source_type, index):
     except ValueError:
         print('Please enter a valid expression ( equation in t )')
         return
-    close_window(values_window, window)
+    close_window(values_window)
 
     if source_type == 'Voltage':
         component_list[index] = 'Veq'
@@ -426,9 +456,14 @@ def max_node():
         nodes = max(int(x), int(y), int(nodes))
 
 
-def close_window(pop_up, window):
+def close_window(child):
     window.focus_set()
-    pop_up.destroy()
+    child.destroy()
+
+
+def close_pop_up(child, parent):
+    parent.focus_set()
+    child.destroy()
 
 
 def configure_entry(entry, text=''):

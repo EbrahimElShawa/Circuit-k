@@ -5,12 +5,32 @@ import circuitTools
 import create_files
 
 widgets_sets_count = 0
+tip_index = 0
 widgets_set = []
 ASSETS_PATH = r"./assets/"
 
 
-def add_fields(window):
+def next_tip(canvas, tips, next_button, skip_button):
+    global tip_index
+    canvas.delete(tips[tip_index])
+    if tip_index == 5:
+        next_button.destroy()
+        skip_button.destroy()
+        return
+    tip_index += 1
+    canvas.itemconfig(tips[tip_index], state="normal")
+
+
+def skip_tips(canvas, tips, next_button, skip_button):
+    for tip in tips:
+        canvas.delete(tip)
+    next_button.destroy()
+    skip_button.destroy()
+
+
+def add_fields(window, canvas, tips, next_button, skip_button):
     global widgets_sets_count, widgets_set
+    skip_tips(canvas, tips, next_button, skip_button)
 
     if widgets_sets_count >= 12:
         Secondary_Interfaces.pop_up_window(window)
@@ -24,13 +44,13 @@ def add_fields(window):
         last_y = int(last_widget.place_info()['y'])
         new_y = last_y + 27
 
-    from_entry = tk.Entry(window, bg="#D9D9D9", foreground="#0500FF", font=('Times New Roman', 15, 'bold'))
-    to_entry = tk.Entry(window, bg="#D9D9D9", foreground="#0500FF", font=('Times New Roman', 15, 'bold'))
+    from_entry = tk.Entry(window, bg="#D9D9D9", foreground="#101010", font=Secondary_Interfaces.active_font)
+    to_entry = tk.Entry(window, bg="#D9D9D9", foreground="#101010", font=Secondary_Interfaces.active_font)
     component_type_combobox = ttk.Combobox(window, state='readonly',
                                            values=['R', 'L', 'C', 'Equation', 'Vdc', 'Idc', 'AC'])
-    component_label = tk.Label(window, text=f"{widgets_sets_count + 1}", bg="#D9D9D9",
+    component_label = tk.Label(window, text=f"{widgets_sets_count + 1}", bg="#EEE5DE",
                                font=('Times New Roman', 15, 'bold'), foreground="#003049")
-    remove_button_image = PhotoImage(file=ASSETS_PATH + "frame0/button_5.png")
+    remove_button_image = PhotoImage(file=ASSETS_PATH + "frame0/button_4.png")
     remove_button = Button(image=remove_button_image, borderwidth=0, command=lambda: remove(widget_set))
     remove_button.image = remove_button_image  # :)    Keeping a reference to the image for newly created buttons
     # Because only once can an Image be an instance for a button (can't be for multiple buttons)
@@ -151,3 +171,4 @@ def clear_all():
     Secondary_Interfaces.freq_list = []
     Secondary_Interfaces.wave_type_list = []
     Secondary_Interfaces.angle_list = []
+

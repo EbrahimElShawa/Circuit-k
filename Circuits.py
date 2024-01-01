@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 from circuitTools import evaluate_equation_for_range
-import progressBar
+from Secondary_Interfaces import progress_bar_window, update
 
 pi = np.pi
 exp = np.exp
@@ -304,12 +304,12 @@ class TimeDomainCircuit:
         ind_vals = self._data_arr[self._masks['L'], 3]
         cap_vals = self._data_arr[self._masks['C'], 3]
         print("\n\nstart analyzing .......%")
-        progressBar.main(self.t_max)
+        progress_bar_window()
         for nth_iter in range(len(self.t_vec)):
-            cur_time = nth_iter / (self.t_max / self.time_step)
+            cur_time = nth_iter / (self.t_max / self.time_step) * self.t_max
             percentage = (cur_time / self.t_max) * 100
             print(f"{cur_time} second ------ {percentage} %")
-            progressBar.update(percentage, cur_time)
+            update(percentage, cur_time)
             i_n_kth = self._calc_i_n_nth(ind_cur_inj_nth, cap_cur_inj_nth, nth_iter)
             rhs_nth = np.concatenate((i_n_kth, self._v_s[:, nth_iter]))
             ans_nth = np.linalg.solve(self._mna_mat, rhs_nth)
