@@ -1,24 +1,32 @@
 import tkinter as tk
 from tkinter import Canvas, ttk, PhotoImage, Button, Toplevel, Entry, Label
-from Main_Interface import run_circuit
 
-ASSETS_PATH = ".\\assets"
+from sympy import sympify, symbols
+
+from Main_Interface import run_circuit
+import circuitTools
+
+main_circuit = None
+ASSETS_PATH = r"./assets"
 idle_font = ('Times New Roman', 8, 'italic')
 active_font = ('Times New Roman', 10, 'bold')
 branches, nodes = 0, 0
 component_list, magnitude_list, ramp_time_list, nodes_list = [], [], [], []
 wave_type_list, angle_list, freq_list = [], [], []
 max_time, step = '', ''
+Dummy_Value = '-1'
 
 
 def set_values_window(window, index, component_name):
     global ASSETS_PATH
+
+
     if component_name in ['R', 'L', 'C']:
-        frame2_path = ASSETS_PATH + "\\frame2\\"
+        frame2_path = ASSETS_PATH + "/frame2/"
         values_window = Toplevel(window)
         values_window.geometry("280x120+500+200")
         values_window.title("Set Value")
-        values_window.iconbitmap(frame2_path + 'DC.ico')
+        #values_window.iconbitmap(frame2_path + 'DC.ico')
         canvas = Canvas(values_window, bg="#FFFFFF", height=120, width=280, bd=0)
         canvas.place(x=0, y=0)
 
@@ -40,12 +48,14 @@ def set_values_window(window, index, component_name):
         values_window.mainloop()
 
     elif component_name == 'AC':
-        frame1_path = ASSETS_PATH + "\\frame1\\"
+        frame1_path = ASSETS_PATH + "/frame1/"
 
         values_window = Toplevel(window)
         values_window.title("Set Value")
         values_window.geometry("300x128+500+200")
-        values_window.iconbitmap(frame1_path + 'AC_Power.ico')
+        #values_window.iconbitmap(frame1_path + 'AC_Power.ico')
+
+     
         values_window.resizable(False, False)
         canvas = tk.Canvas(values_window, bg="#FFFFFF", height=150, width=300, bd=0)
         canvas.place(x=0, y=0)
@@ -87,11 +97,11 @@ def set_values_window(window, index, component_name):
         values_window.mainloop()
 
     elif component_name in ['Idc', 'Vdc']:
-        frame2_path = ASSETS_PATH + "\\frame2\\"
+        frame2_path = ASSETS_PATH + "/frame2/"
         values_window = Toplevel(window)
         values_window.geometry("300x135+500+200")
         values_window.title("Set Value")
-        values_window.iconbitmap(frame2_path + 'DC.ico')
+        # values_window.iconbitmap(frame2_path + 'DC.ico')
         canvas = Canvas(values_window, bg="#FFFFFF", height=135, width=300, bd=0)
         canvas.place(x=0, y=0)
 
@@ -101,8 +111,8 @@ def set_values_window(window, index, component_name):
         mag_entry = Entry(values_window, bg="#D9D9D9", foreground="#780000", font=active_font)
         ramp_entry = Entry(values_window, bg="#D9D9D9", foreground="#780000", font=active_font)
         add_element_button = tk.Button(values_window, image=add_element_button_image, borderwidth=0,
-                                       command=lambda: add_element(values_window, window, component_name,
-                                                                   mag_entry.get(), index))
+                                       command=lambda: add_source(values_window, window, mag_entry.get(), -1, -1,
+                                                                  ramp_entry.get(), component_name, "DC", index))
 
         mag_entry.focus_set()
         mag_entry.bind('<Return>', lambda event: add_element_button.invoke())
@@ -117,12 +127,12 @@ def set_values_window(window, index, component_name):
         values_window.resizable(False, False)
         values_window.mainloop()
 
-    else:   # Equation
-        frame3_path = ASSETS_PATH + "\\frame3\\"
+    else:  # Equation
+        frame3_path = ASSETS_PATH + "/frame3/"
         values_window = Toplevel(window)
         values_window.geometry("260x150+500+200")
         values_window.title('Write equation')
-        values_window.iconbitmap(frame3_path + 'more.ico')
+        # values_window.iconbitmap(frame3_path + 'more.ico')
         values_window.focus_set()
         canvas = Canvas(values_window, bg="#FFFFFF", height=150, width=300, bd=0)
         canvas.place(x=0, y=0)
@@ -135,8 +145,9 @@ def set_values_window(window, index, component_name):
                                     command=lambda: add_equation(values_window, window, eq_entry.get(),
                                                                  source_type_combobox.get(), index))
 
-        eq_entry.insert(0, 'Equation in terms of time (t)')
-        eq_entry.bind('<FocusIn>', lambda event: configure_entry(eq_entry))
+        initial_comment = 'Equation in param t'
+        eq_entry.insert(0, initial_comment)
+        eq_entry.bind('<FocusIn>', lambda event: configure_entry(eq_entry, initial_comment))
         eq_entry.bind('<Return>', lambda event: add_element_button.invoke())
 
         canvas.create_image(71.0, 28.0, image=image_1)
@@ -149,13 +160,16 @@ def set_values_window(window, index, component_name):
 
 
 def pop_up_window(window):
-    frame4_path = ASSETS_PATH + "\\frame4\\"
+    frame4_path = ASSETS_PATH + "/frame4/"
     pop_up = Toplevel(window)
     pop_up.title("Warning")
-    pop_up.geometry("155x80+280+535")
-    pop_up.iconbitmap(frame4_path + 'prohibition.ico')
 
-    pop_up_message = Label(pop_up, text="Maximum components \nreached.")
+  
+    # pop_up.iconbitmap(frame4_path + 'prohibition.ico')
+    pop_up.geometry("155x80+280+535")
+  
+
+    pop_up_message = Label(pop_up, text="Max reached.")
     close_button = Button(pop_up, borderwidth=1, text="close", command=lambda: close_window(pop_up, window))
     pop_up_message.place(x=15, y=15)
     close_button.place(x=107.5, y=60, width=35, height=20)
@@ -166,7 +180,7 @@ def pop_up_window(window):
 
 
 def process_window(window):
-    frame5_path = ASSETS_PATH + "\\frame5\\"
+    frame5_path = ASSETS_PATH + "/frame5/"
     domain_window = Toplevel(window)
     domain_window.title("Domain")
     domain_window.geometry("195x110+350+350")
@@ -184,7 +198,7 @@ def process_window(window):
 
     tmax_entry.focus_set()
     tmax_entry.bind('<Return>', lambda event: analyse_button.invoke())
-    step_entry.insert(0, '10e-4')
+    step_entry.insert(0, '1e-4')
     step_entry.bind('<FocusIn>', lambda event: configure_entry(step_entry))
 
     canvas.create_image(54, 24, image=image_1)
@@ -198,7 +212,7 @@ def process_window(window):
 
 
 def analyse(domain_window, window, t_max, t_step):
-    global max_time, step, nodes
+    global max_time, step, nodes, main_circuit
     try:
         _, _ = float(t_max), float(t_step)
     except ValueError:
@@ -206,9 +220,11 @@ def analyse(domain_window, window, t_max, t_step):
         return
     max_time, step = t_max, t_step
 
-    run_circuit()
+    from create_files import create_time_file
+    create_time_file(max_time, step)
+    main_circuit = run_circuit()
 
-    frame6_path = ASSETS_PATH + "\\frame6\\"
+    frame6_path = ASSETS_PATH + "/frame6/"
     result_window = Toplevel(window)
     result_window.title("Result")
     result_window.geometry("291x348+600+300")
@@ -227,7 +243,7 @@ def analyse(domain_window, window, t_max, t_step):
     image_image_9 = PhotoImage(file=frame6_path + "image_9.png")
 
     branch_box = ttk.Combobox(result_window, state='readonly',
-                              values=[f"Br. {i + 1}" for i in range(branches)])
+                              values=[f"{i + 1}" for i in range(branches)])
     node_box = ttk.Combobox(result_window, state='readonly',
                             values=[f"{i + 1}" for i in range(nodes)])
     from_box = ttk.Combobox(result_window, state='readonly',
@@ -248,7 +264,7 @@ def analyse(domain_window, window, t_max, t_step):
                                                             tmax_branch_entry.get()))
     plot_node_button_image = PhotoImage(file=frame6_path + "button_2.png")
     plot_node_button = Button(result_window, image=plot_node_button_image, borderwidth=0,
-                              command=lambda: plot_node(node_box.get(), tmax_node_entry.get(), tmax_node_entry.get()))
+                              command=lambda: plot_node(node_box.get(), tmin_node_entry.get(), tmax_node_entry.get()))
     plot_from_to_button_image = PhotoImage(file=frame6_path + "button_3.png")
     plot_from_to_button = Button(result_window, image=plot_from_to_button_image, borderwidth=0,
                                  command=lambda: plot_from_to(from_box.get(), to_box.get(),
@@ -301,6 +317,10 @@ def analyse(domain_window, window, t_max, t_step):
 
 def add_source(values_window, window, mag, ang, freq, ramp, source_type, wave_type, index):
     global magnitude_list, component_list, ramp_time_list, freq_list, angle_list, wave_type_list
+
+    print(magnitude_list)
+    print(index)
+
     input_value = [mag, ang, freq, ramp]
     try:
         for _ in input_value:
@@ -318,7 +338,7 @@ def add_source(values_window, window, mag, ang, freq, ramp, source_type, wave_ty
     angle_list[index] = ang
 
 
-def add_element(values_window, window, component_name, mag, index, ramp=-1):
+def add_element(values_window, window, component_name, mag, index):
     global component_list, magnitude_list, ramp_time_list, freq_list, wave_type_list, angle_list
     try:
         _ = float(mag)
@@ -327,28 +347,38 @@ def add_element(values_window, window, component_name, mag, index, ramp=-1):
         return
     close_window(values_window, window)
 
+    print(magnitude_list)
+    print(index)
+
     component_list[index] = component_name
     magnitude_list[index] = mag
-    ramp_time_list[index] = ramp
-    freq_list[index] = -1
-    wave_type_list[index] = -1
-    angle_list[index] = -1
+    ramp_time_list[index] = Dummy_Value
+    freq_list[index] = Dummy_Value
+    wave_type_list[index] = Dummy_Value
+    angle_list[index] = Dummy_Value
 
 
 def add_equation(values_window, window, eq, source_type, index):
     global component_list, magnitude_list, ramp_time_list, freq_list, wave_type_list, angle_list
-    # Check here
+    try:
+        t = symbols('t')
+        expr = sympify(eq)
+        result = expr.subs(t, 1).evalf()
+        _ = float(result)
+    except ValueError:
+        print('Please enter a valid expression ( equation in t )')
+        return
     close_window(values_window, window)
 
     if source_type == 'Voltage':
         component_list[index] = 'Veq'
     else:
         component_list[index] = 'Ieq'
-    magnitude_list[index] = -1
-    ramp_time_list[index] = -1
-    freq_list[index] = -1
+    magnitude_list[index] = eq
+    ramp_time_list[index] = Dummy_Value
+    freq_list[index] = Dummy_Value
     wave_type_list[index] = eq
-    angle_list[index] = -1
+    angle_list[index] = Dummy_Value
 
 
 def plot_branch(branch, t_min, t_max):
@@ -361,7 +391,7 @@ def plot_branch(branch, t_min, t_max):
         print('Please enter a valid number')
         return
 
-    # Here to plot the branch
+    circuitTools.plot_branch(main_circuit, 0, int(branch), Dummy_Value, t_min, t_max)
 
 
 def plot_node(node, t_min, t_max):
@@ -374,7 +404,7 @@ def plot_node(node, t_min, t_max):
         print('Please enter a valid number')
         return
 
-    # Here to plot node
+    circuitTools.plot_branch(main_circuit, 1, int(node), Dummy_Value, t_min, t_max)
 
 
 def plot_from_to(from_node, to_node, t_min, t_max):
@@ -387,16 +417,19 @@ def plot_from_to(from_node, to_node, t_min, t_max):
         print('Please enter a valid number')
         return
 
-    # Here to plot from_to
+    circuitTools.plot_branch(main_circuit, 2, int(from_node), int(to_node), t_min, t_max)
 
 
 def csv_file():
-    pass
+    circuitTools.excel(main_circuit)
 
 
-def configure_entry(entry):
+def configure_entry(entry, text=''):
+    if entry.get() == text:
+        entry.delete(0, tk.END)
+    else:
+        entry.selection_range(0, tk.END)
     entry.config(font=active_font)
-    entry.selection_range(0, tk.END)
 
 
 def max_node():
