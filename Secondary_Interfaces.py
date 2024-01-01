@@ -19,13 +19,43 @@ Dummy_Value = '-1'
 
 def set_values_window(window, index, component_name):
     global ASSETS_PATH
-    if component_name == 'AC':
+
+
+    if component_name in ['R', 'L', 'C']:
+        frame2_path = ASSETS_PATH + "/frame2/"
+        values_window = Toplevel(window)
+        values_window.geometry("280x120+500+200")
+        values_window.title("Set Value")
+        #values_window.iconbitmap(frame2_path + 'DC.ico')
+        canvas = Canvas(values_window, bg="#FFFFFF", height=120, width=280, bd=0)
+        canvas.place(x=0, y=0)
+
+        image_1 = PhotoImage(file=frame2_path + "image_1.png")
+        add_element_button_image = PhotoImage(file=frame2_path + "button_1.png")
+        mag_entry = Entry(values_window, bg="#D9D9D9", foreground="#780000", font=active_font)
+        add_element_button = tk.Button(values_window, image=add_element_button_image, borderwidth=0,
+                                       command=lambda: add_element(values_window, window, component_name,
+                                                                   mag_entry.get(), index))
+
+        mag_entry.focus_set()
+        mag_entry.bind("<Return>", lambda event: add_element_button.invoke())
+
+        canvas.create_image(74, 24, image=image_1)
+        mag_entry.place(x=35, y=48, width=80, height=20)
+        add_element_button.place(x=140, y=78, width=121.5, height=32)
+
+        values_window.resizable(False, False)
+        values_window.mainloop()
+
+    elif component_name == 'AC':
         frame1_path = ASSETS_PATH + "/frame1/"
 
         values_window = Toplevel(window)
         values_window.title("Set Value")
-        values_window.geometry("300x128")
-        # values_window.iconbitmap(frame1_path + 'AC_Power.ico')
+        values_window.geometry("300x128+500+200")
+        #values_window.iconbitmap(frame1_path + 'AC_Power.ico')
+
+     
         values_window.resizable(False, False)
         canvas = tk.Canvas(values_window, bg="#FFFFFF", height=150, width=300, bd=0)
         canvas.place(x=0, y=0)
@@ -66,36 +96,10 @@ def set_values_window(window, index, component_name):
 
         values_window.mainloop()
 
-    elif component_name in ['R', 'L', 'C']:
-        frame2_path = ASSETS_PATH + "/frame2/"
-        values_window = Toplevel(window)
-        values_window.geometry("280x120")
-        values_window.title("Set Value")
-        # values_window.iconbitmap(frame2_path + 'DC.ico')
-        canvas = Canvas(values_window, bg="#FFFFFF", height=120, width=280, bd=0)
-        canvas.place(x=0, y=0)
-
-        image_1 = PhotoImage(file=frame2_path + "image_1.png")
-        add_element_button_image = PhotoImage(file=frame2_path + "button_1.png")
-        mag_entry = Entry(values_window, bg="#D9D9D9", foreground="#780000", font=active_font)
-        add_element_button = tk.Button(values_window, image=add_element_button_image, borderwidth=0,
-                                       command=lambda: add_element(values_window, window, component_name,
-                                                                   mag_entry.get(), index))
-
-        mag_entry.focus_set()
-        mag_entry.bind("<Return>", lambda event: add_element_button.invoke())
-
-        canvas.create_image(74, 24, image=image_1)
-        mag_entry.place(x=35, y=48, width=80, height=20)
-        add_element_button.place(x=140, y=78, width=121.5, height=32)
-
-        values_window.resizable(False, False)
-        values_window.mainloop()
-
     elif component_name in ['Idc', 'Vdc']:
         frame2_path = ASSETS_PATH + "/frame2/"
         values_window = Toplevel(window)
-        values_window.geometry("300x135")
+        values_window.geometry("300x135+500+200")
         values_window.title("Set Value")
         # values_window.iconbitmap(frame2_path + 'DC.ico')
         canvas = Canvas(values_window, bg="#FFFFFF", height=135, width=300, bd=0)
@@ -126,7 +130,7 @@ def set_values_window(window, index, component_name):
     else:  # Equation
         frame3_path = ASSETS_PATH + "/frame3/"
         values_window = Toplevel(window)
-        values_window.geometry("260x150")
+        values_window.geometry("260x150+500+200")
         values_window.title('Write equation')
         # values_window.iconbitmap(frame3_path + 'more.ico')
         values_window.focus_set()
@@ -159,13 +163,18 @@ def pop_up_window(window):
     frame4_path = ASSETS_PATH + "/frame4/"
     pop_up = Toplevel(window)
     pop_up.title("Warning")
-    pop_up.geometry("155x100")
+
+  
     # pop_up.iconbitmap(frame4_path + 'prohibition.ico')
+    pop_up.geometry("155x80+280+535")
+  
 
     pop_up_message = Label(pop_up, text="Max reached.")
     close_button = Button(pop_up, borderwidth=1, text="close", command=lambda: close_window(pop_up, window))
-    pop_up_message.place(x=15, y=20)
-    close_button.place(x=110, y=70, width=30, height=20)
+    pop_up_message.place(x=15, y=15)
+    close_button.place(x=107.5, y=60, width=35, height=20)
+
+    pop_up.focus_set()
     pop_up.resizable(False, False)
     pop_up.mainloop()
 
@@ -174,7 +183,7 @@ def process_window(window):
     frame5_path = ASSETS_PATH + "/frame5/"
     domain_window = Toplevel(window)
     domain_window.title("Domain")
-    domain_window.geometry("195x110")
+    domain_window.geometry("195x110+350+350")
     domain_window.focus_set()
     canvas = tk.Canvas(domain_window, bg="#FFFFFF", height=110, width=195, bd=0)
     canvas.place(x=0, y=0)
@@ -218,7 +227,7 @@ def analyse(domain_window, window, t_max, t_step):
     frame6_path = ASSETS_PATH + "/frame6/"
     result_window = Toplevel(window)
     result_window.title("Result")
-    result_window.geometry("291x348")
+    result_window.geometry("291x348+600+300")
     canvas = Canvas(result_window, bg="#FFFFFF", height=348, width=291, bd=0)
     canvas.place(x=0, y=0)
     close_window(domain_window, result_window)
