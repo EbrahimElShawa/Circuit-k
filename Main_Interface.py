@@ -112,7 +112,7 @@ def draw_schema():
 
 def run_circuit():
     from Circuits import Circuit
-    plt.switch_backend('TkAgg')  # Replace Pycharm Tkinter with Anti-Grain Geometry
+    #plt.switch_backend('TkAgg')  # Replace Pycharm Tkinter with Anti-Grain Geometry
     main_circuit = Circuit("assets/net/net.txt")
     return main_circuit
 

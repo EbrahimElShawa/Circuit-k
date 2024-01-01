@@ -49,6 +49,8 @@ class TimeDomainCircuit:
         self.data_df = pd.read_csv(data_file, sep=' ',
                                    names=['Component Name', 'From Node', 'To Node', 'Value'])
         self.data_df.loc[:, ['From Node', 'To Node']] = self.data_df.loc[:, ['From Node', 'To Node']].astype(str)
+        mask = self.data_df['Component Name'].str.startswith(('Ieq', 'Veq'))
+        self.data_df.loc[mask, 'Value'] = '-1'
         self.unique_user_nodes = self.unique_nodes()
         self.nodes_transf = self.trandform_nodes()
         self._data_arr = self._df_to_array()

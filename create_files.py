@@ -42,7 +42,10 @@ def create_source_file(index):
         file.write("Ramp_up_time" + "\n")
         file.write(str(ramp_time_list[index]) + "\n")
         file.write("Magnitude" + "\n")
-        file.write(str(magnitude_list[index]) + "\n")
+        if component_list[index] in ["Ieq", "Veq"]:
+            file.write("-1\n")
+        else:
+            file.write(str(magnitude_list[index]) + "\n")
         file.write("Frequency" + "\n")
         file.write(str(freq_list[index]) + "\n")
         file.write("Phase" + "\n")

@@ -278,11 +278,6 @@ def excel(circuit):
 
 
 def plot_branch(cirucit, select, n0=-1, n1=-1, xmin=0, xmax=-1):
-    if xmax == -1:
-        xmax = cirucit._circuit.t_vec[-1]
-    if xmin == -1:
-        xmin = 0
-
     # select 0 branch
     # select 1 node voltage
     # select 2 voltage dif 2 nodes
