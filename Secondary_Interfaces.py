@@ -14,7 +14,7 @@ branches, nodes = 0, 0
 component_list, magnitude_list, ramp_time_list, nodes_list = [], [], [], []
 wave_type_list, angle_list, freq_list = [], [], []
 max_time, step = '', ''
-Dummy_Value = -1
+Dummy_Value = '-1'
 
 
 def set_values_window(window, index, component_name):
@@ -141,8 +141,9 @@ def set_values_window(window, index, component_name):
                                     command=lambda: add_equation(values_window, window, eq_entry.get(),
                                                                  source_type_combobox.get(), index))
 
-        eq_entry.insert(0, 'Equation in param t')
-        eq_entry.bind('<FocusIn>', lambda event: configure_entry(eq_entry, 'Equation with a parameter t'))
+        initial_comment = 'Equation in param t'
+        eq_entry.insert(0, initial_comment)
+        eq_entry.bind('<FocusIn>', lambda event: configure_entry(eq_entry, initial_comment))
         eq_entry.bind('<Return>', lambda event: add_element_button.invoke())
 
         canvas.create_image(71.0, 28.0, image=image_1)
@@ -364,7 +365,7 @@ def add_equation(values_window, window, eq, source_type, index):
         component_list[index] = 'Veq'
     else:
         component_list[index] = 'Ieq'
-    magnitude_list[index] = Dummy_Value
+    magnitude_list[index] = eq
     ramp_time_list[index] = Dummy_Value
     freq_list[index] = Dummy_Value
     wave_type_list[index] = eq

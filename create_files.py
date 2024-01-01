@@ -19,8 +19,15 @@ def netlist():
     from Secondary_Interfaces import component_list, magnitude_list, nodes_list
     with open(DIR_PATH + "net.txt", 'w') as file:
         for i in range(len(component_list)):
-            comp_name = component_list[i] + str(i + 1)
-            if component_list[i] not in ["R", "L", "C"]:
+            comp_name = component_list[i]
+            if component_list[i] == "R":
+                comp_name = comp_name + "es" + str(i + 1)
+            elif component_list[i] == "C":
+                comp_name = comp_name + "ap" + str(i + 1)
+            elif component_list[i] == "L":
+                comp_name = comp_name + "ci" + str(i + 1)
+            else:
+                comp_name = comp_name + str(i + 1)
                 create_source_file(i)
 
             file.write(comp_name + " " + nodes_list[i][0] + " " + nodes_list[i][1] + " " + magnitude_list[i] + "\n")
