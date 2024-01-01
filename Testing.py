@@ -20,11 +20,3 @@ if __name__ == '__main__':
 # for value in range(20):
 #     result = expr.subs(t, value).evalf()
 #     print(f"value of {value} second is {result}")
-       from PIL import Image
-
-        # Open an image file
-        image_path = "assets/result/circuit.png"
-        img = Image.open(image_path)
-
-        # Display the image
-        img.show()
