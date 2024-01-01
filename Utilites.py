@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import Button, PhotoImage, ttk
 import Secondary_Interfaces
+import circuitTools
 
 widgets_sets_count = 0
 widgets_set = []
@@ -59,7 +60,7 @@ def add_fields(window):
     widgets_set.append(widget_set)
 
 
-def process(window):
+def validate(window, select=''):
     print("checking that all boxes filled")
     print(Secondary_Interfaces.magnitude_list, Secondary_Interfaces.angle_list, Secondary_Interfaces.freq_list,
           Secondary_Interfaces.component_list
@@ -86,8 +87,14 @@ def process(window):
             print("There are empty boxes")
             return
 
-    Secondary_Interfaces.max_node()
-    Secondary_Interfaces.process_window(window)
+    from create_files import create
+    create()
+
+    if select == 'Schema':
+        circuitTools.picture()
+    else:
+        Secondary_Interfaces.max_node()
+        Secondary_Interfaces.process_window(window)
 
 
 def remove(widgets):

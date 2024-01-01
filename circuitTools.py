@@ -8,7 +8,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sympy import symbols, sympify
 import openpyxl
-
 comp_types = {'R': 0, 'L': 1, 'C': 2, 'V': 10, 'I': 20}
 
 
@@ -36,7 +35,8 @@ def _df_to_array(data_df, nodes_transf):
     return np.array(data_transf, dtype=float)
 
 
-def picture(data_file):
+def picture():
+    data_file = r"assets/net/net.txt"
     data_df = pd.read_csv(data_file, sep=' ',
                           names=['Component Name', 'From Node', 'To Node', 'Value'])
 

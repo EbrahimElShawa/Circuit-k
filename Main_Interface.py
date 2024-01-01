@@ -54,12 +54,12 @@ def main():
     # Buttons:
     process_button_image = PhotoImage(file=ASSETS_PATH + "button_1.png")
     process_button = Button(image=process_button_image, borderwidth=0,
-                            command=lambda: Utilites.process(window))
+                            command=lambda: Utilites.validate(window))
     process_button.place(x=317, y=497, width=128.0, height=46.0)
 
     draw_circuit_button_image = PhotoImage(file=ASSETS_PATH + "button_2.png")
     draw_circuit_button = Button(image=draw_circuit_button_image, borderwidth=0,
-                                 command=lambda: print("   "))
+                                 command=lambda: draw_schema())
     draw_circuit_button.place(x=58, y=497, width=196.0, height=46.0)
 
     clear_all_button_image = PhotoImage(file=ASSETS_PATH + "button_3.png")
@@ -76,10 +76,12 @@ def main():
     window.mainloop()
 
 
+def draw_schema():
+    Utilites.validate(None, 'Schema')
+
+
 def run_circuit():
-    from create_files import create
     from Circuits import Circuit
-    create()
     # plt.switch_backend('TkAgg')  # Replace Pycharm Tkinter with Anti-Grain Geometry
     main_circuit = Circuit("assets/net/net.txt")
     return main_circuit

@@ -1,0 +1,10 @@
+Type
+DC
+Ramp_up_time
+0.5
+Magnitude
+12
+Frequency
+-1
+Phase
+-1
