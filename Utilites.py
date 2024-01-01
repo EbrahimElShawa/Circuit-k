@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import Button, PhotoImage, ttk
 import Secondary_Interfaces
 import circuitTools
+import create_files
 
 widgets_sets_count = 0
 widgets_set = []
@@ -87,13 +88,14 @@ def validate(window, select=''):
             print("There are empty boxes")
             return
 
-    from create_files import create
-    create()
+    create_files.delete_files()
+    create_files.netlist()
 
     if select == 'Schema':
         circuitTools.picture()
     else:
         Secondary_Interfaces.max_node()
+
         Secondary_Interfaces.process_window(window)
 
 

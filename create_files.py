@@ -19,7 +19,7 @@ def netlist():
     from Secondary_Interfaces import component_list, magnitude_list, nodes_list
     with open(DIR_PATH + "net.txt", 'w') as file:
         for i in range(len(component_list)):
-            comp_name = component_list[i] + str(i)
+            comp_name = component_list[i] + str(i + 1)
             if component_list[i] not in ["R", "L", "C"]:
                 create_source_file(i)
 
@@ -29,7 +29,7 @@ def netlist():
 def create_source_file(index):
     from Secondary_Interfaces import component_list, magnitude_list, \
         ramp_time_list, freq_list, wave_type_list, angle_list
-    with open(DIR_PATH + component_list[index] + str(index) + ".txt", 'w') as file:
+    with open(DIR_PATH + component_list[index] + str(index + 1) + ".txt", 'w') as file:
         file.write("Type\n")
         file.write(str(wave_type_list[index]) + "\n")
         file.write("Ramp_up_time" + "\n")
@@ -42,8 +42,7 @@ def create_source_file(index):
         file.write(str(angle_list[index]) + "\n")
 
 
-def create_time_file():
-    from Secondary_Interfaces import max_time, step
+def create_time_file(max_time, step):
     with open(DIR_PATH + "net_cond.txt", 'w') as file:
         file.write("0 " + max_time + " " + step + "\n")
 

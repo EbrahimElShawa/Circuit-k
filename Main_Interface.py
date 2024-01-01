@@ -10,7 +10,7 @@ def main():
     window = Tk()
     icon = PhotoImage(file=ASSETS_PATH + 'Tomato.png')
     window.wm_iconphoto(True, icon)
-    window.title('Circuit Solver')
+    window.title('Circuit K')
     window.geometry("630x550+50+100")
     canvas = Canvas(window, bg="#FFFFFF", height=550, width=630, bd=0)
     canvas.place(x=0, y=0)

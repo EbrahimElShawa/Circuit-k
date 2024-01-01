@@ -1,8 +1,7 @@
 import tkinter as tk
 from tkinter import Canvas, ttk, PhotoImage, Button, Toplevel, Entry, Label
-from Main_Interface import  run_circuit
+from Main_Interface import run_circuit
 import circuitTools
-
 
 main_circuit = None
 ASSETS_PATH = r"./assets"
@@ -139,7 +138,7 @@ def set_values_window(window, index, component_name):
                                     command=lambda: add_equation(values_window, window, eq_entry.get(),
                                                                  source_type_combobox.get(), index))
 
-        eq_entry.insert(0, 'Equation in terms of time (t)')
+        eq_entry.insert(0, 'Equation with a parameter t')
         eq_entry.bind('<FocusIn>', lambda event: configure_entry(eq_entry))
         eq_entry.bind('<Return>', lambda event: add_element_button.invoke())
 
@@ -200,7 +199,7 @@ def process_window(window):
 
 
 def analyse(domain_window, window, t_max, t_step):
-    global max_time, step, nodes , main_circuit
+    global max_time, step, nodes, main_circuit
     try:
         _, _ = float(t_max), float(t_step)
     except ValueError:
@@ -208,6 +207,8 @@ def analyse(domain_window, window, t_max, t_step):
         return
     max_time, step = t_max, t_step
 
+    from create_files import create_time_file
+    create_time_file(max_time, step)
     main_circuit = run_circuit()
 
     frame6_path = ASSETS_PATH + "/frame6/"
@@ -229,7 +230,7 @@ def analyse(domain_window, window, t_max, t_step):
     image_image_9 = PhotoImage(file=frame6_path + "image_9.png")
 
     branch_box = ttk.Combobox(result_window, state='readonly',
-                              values=[f"{i + 1}" for i in range(nodes)])
+                              values=[f"{i + 1}" for i in range(branches)])
     node_box = ttk.Combobox(result_window, state='readonly',
                             values=[f"{i + 1}" for i in range(nodes)])
     from_box = ttk.Combobox(result_window, state='readonly',
@@ -403,9 +404,13 @@ def csv_file():
     circuitTools.excel(main_circuit)
 
 
-def configure_entry(entry):
-    entry.config(font=active_font)
-    entry.selection_range(0, tk.END)
+def configure_entry(entry, text=''):
+    if entry.get() == text:
+        entry.delete(0, tk.END)
+        entry.config(fg='black')
+    else:
+        entry.config(font=active_font)
+        entry.selection_range(0, tk.END)
 
 
 def max_node():
