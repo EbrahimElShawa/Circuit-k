@@ -50,7 +50,7 @@ def add_fields(window, canvas, tips, next_button, skip_button):
                                            values=['R', 'L', 'C', 'Equation', 'Vdc', 'Idc', 'AC'])
     component_label = tk.Label(window, text=f"{widgets_sets_count + 1}", bg="#EEE5DE",
                                font=('Times New Roman', 15, 'bold'), foreground="#003049")
-    remove_button_image = PhotoImage(file=ASSETS_PATH + "frame0/button_4.png")
+    remove_button_image = PhotoImage(file=ASSETS_PATH + "frame2/button_4.png")
     remove_button = Button(image=remove_button_image, borderwidth=0, command=lambda: remove(widget_set))
     remove_button.image = remove_button_image  # :)    Keeping a reference to the image for newly created buttons
     # Because only once can an Image be an instance for a button (can't be for multiple buttons)
