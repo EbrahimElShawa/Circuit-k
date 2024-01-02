@@ -45,10 +45,13 @@ class TimeDomainCircuit:
     comp_types = {'R': 0, 'L': 1, 'C': 2, 'V': 10, 'I': 20}
 
     def __init__(self, data_file):
+        progress_bar_window()
         self.dirname = os.path.dirname(data_file)
         self.data_df = pd.read_csv(data_file, sep=' ',
                                    names=['Component Name', 'From Node', 'To Node', 'Value'])
         self.data_df.loc[:, ['From Node', 'To Node']] = self.data_df.loc[:, ['From Node', 'To Node']].astype(str)
+        mask = self.data_df['Component Name'].str.startswith(('Ieq', 'Veq'))
+        self.data_df.loc[mask, 'Value'] = '-1'
         self.unique_user_nodes = self.unique_nodes()
         self.nodes_transf = self.trandform_nodes()
         self._data_arr = self._df_to_array()
@@ -183,8 +186,7 @@ class TimeDomainCircuit:
                                             self.t_vec[bf_ramp]
                     sources[idx, aft_ramp] = mag * np.sign(np.sin(w * self.t_vec[aft_ramp] + np.radians(ang)))
 
-                # sources[idx, :] = np.sign(np.sin(2 * np.pi * frq * self.t_vec[:] + np.radians(ang)))
-                # simply consider only the sign of sin :)
+
 
             elif list(source[0].loc[1])[0] == 'TRIANGLE':
                 frq = float(list(source[0].loc[7])[0])
@@ -200,7 +202,7 @@ class TimeDomainCircuit:
                     sources[idx, aft_ramp] = (2 * mag * np.sqrt(3) / pi) * np.arcsin(
                         np.sin(w * self.t_vec[aft_ramp] + np.radians(ang)))
 
-                # I don't know how to prove it, but it works :)
+
 
             elif list(source[0].loc[1])[0] == 'SAWTOOTH':
                 frq = float(list(source[0].loc[7])[0])
@@ -304,7 +306,6 @@ class TimeDomainCircuit:
         ind_vals = self._data_arr[self._masks['L'], 3]
         cap_vals = self._data_arr[self._masks['C'], 3]
         print("\n\nstart analyzing .......%")
-        progress_bar_window()
         for nth_iter in range(len(self.t_vec)):
             cur_time = nth_iter / (self.t_max / self.time_step) * self.t_max
             percentage = (cur_time / self.t_max) * 100

@@ -1,8 +1,5 @@
 from schemdraw import Drawing, elements as draw
 import schemdraw.elements
-import numpy as np
-import subprocess
-import sys
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -277,15 +274,12 @@ def excel(circuit):
         os.system(f'xdg-open "{file_path}"')
 
 
-def plot_branch(cirucit, select, n0=-1, n1=-1, xmin=0, xmax=-1):
-    if xmax == -1:
-        xmax = cirucit._circuit.t_vec[-1]
-    if xmin == -1:
-        xmin = 0
-
+def plot_branch(cirucit, select, n0, n1, xmin, xmax):
     # select 0 branch
     # select 1 node voltage
     # select 2 voltage dif 2 nodes
+    xmin = float(xmin)
+    xmax = float(xmax)
     font1 = {'family': 'serif', 'color': 'blue', 'size': 20}
     font2 = {'family': 'serif', 'color': 'darkred', 'size': 15}
 
@@ -302,7 +296,7 @@ def plot_branch(cirucit, select, n0=-1, n1=-1, xmin=0, xmax=-1):
         axs[0].plot(cirucit._circuit.t_vec, cirucit._circuit.currents.iloc[:, n0 - 1])
         axs[0].set_xlim(xmin, xmax)
 
-        v = list(cirucit._circuit.branch_voltages.columns)[n0 - 1]
+        v = list(cirucit._circuit.branch_voltages.columns)[n0]
         axs[1].set_title(v + " diagram", fontdict=font1)
         axs[1].set_xlabel("Time (seconds)", fontdict=font2)
         axs[1].set_ylabel("Amplitude (V)", fontdict=font2)
@@ -342,8 +336,3 @@ def evaluate_equation_for_range(equation, t_vec):
         print(f"value of {value} second is {source[-1]}")
     return source
 
-
-class NooValidExpression(Exception):
-    def __init__(self, message="The equation is not valid."):
-        self.message = message
-        super().__init__(self.message)
