@@ -76,11 +76,11 @@ def picture():
             elif branch0[0:3] == 'Vdc':
 
                 if branch1 > branch2:
-                    circuit.add(elm.SourceV().left().label(str(branch3) + 'V', loc='bottom', fontsize=15)
-                                .at((4 * branch1, 0)).to((4 * branch2, 0)))
-                else:
                     circuit.add(elm.SourceV().right().label(str(branch3) + 'V', loc='bottom', fontsize=15)
-                                .at((4 * branch1, 0)).to((4 * branch2, 0)))
+                                .at((4 * branch2, 0)).to((4 * branch1, 0)))
+                else:
+                    circuit.add(elm.SourceV().left().label(str(branch3) + 'V', loc='bottom', fontsize=15)
+                                .at((4 * branch2, 0)).to((4 * branch1, 0)))
 
             elif branch0[0:3] == 'Idc':
 
@@ -174,17 +174,17 @@ def picture():
 
             elif branch0[0:3] == 'Vdc':
                 v += 2
-                circuit.add(draw.Line().at((4 * branch1 + r, 0)).to((4 * branch1 + r, -v)))
+                circuit.add(draw.Line().at((4 * branch2 + r, 0)).to((4 * branch2 + r, -v)))
 
                 if branch1 > branch2:
-                    circuit.add(elm.SourceV().left().label(str(branch3) + 'V', loc='bottom', fontsize=15)
-                                .at((4 * branch1 + r, -v)).to((4 * branch2 - r, -v)))
-                else:
                     circuit.add(elm.SourceV().right().label(str(branch3) + 'V', loc='bottom', fontsize=15)
-                                .at((4 * branch1 + r, -v)).to((4 * branch2 - r, -v)))
+                                .at((4 * branch2 + r, -v)).to((4 * branch1 - r, -v)))
+                else:
+                    circuit.add(elm.SourceV().left().label(str(branch3) + 'V', loc='bottom', fontsize=15)
+                                .at((4 * branch2 + r, -v)).to((4 * branch1 - r, -v)))
 
-                circuit.add(draw.Line().at((4 * branch2 - r, -v)).to((4 * branch2 - r, 0)))
-                circuit.add(draw.Line().at((4 * branch1, 0)).to((4 * branch1 + r, 0)))
+                circuit.add(draw.Line().at((4 * branch1 - r, -v)).to((4 * branch1 - r, 0)))
+                circuit.add(draw.Line().at((4 * branch2, 0)).to((4 * branch2 + r, 0)))
                 circuit.add(draw.Line().at((4 * branch1, 0)).to((4 * branch1 - r, 0)))
                 r += 0.1
 
@@ -296,7 +296,7 @@ def plot_branch(cirucit, select, n0, n1, xmin, xmax):
         axs[0].plot(cirucit._circuit.t_vec, cirucit._circuit.currents.iloc[:, n0 - 1])
         axs[0].set_xlim(xmin, xmax)
 
-        v = list(cirucit._circuit.branch_voltages.columns)[n0]
+        v = list(cirucit._circuit.branch_voltages.columns)[n0-1]
         axs[1].set_title(v + " diagram", fontdict=font1)
         axs[1].set_xlabel("Time (seconds)", fontdict=font2)
         axs[1].set_ylabel("Amplitude (V)", fontdict=font2)
