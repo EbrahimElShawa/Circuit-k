@@ -232,7 +232,7 @@ def set_values_window(w, index, component_name):
         values_window.transient(main_interface)
         initial_comment = 'Equation in param t'
         eq_entry.insert(0, initial_comment)
-        eq_entry.bind('<FocusIn>', lambda event: configure_entry(eq_entry, initial_comment))
+        eq_entry.bind('<FocusIn>', lambda event: configure_entry(eq_entry, False))
         eq_entry.bind('<Return>', lambda event: add_element_button.invoke())
 
         canvas.create_image(71.0, 28.0, image=image_1)
@@ -243,7 +243,7 @@ def set_values_window(w, index, component_name):
         values_window.mainloop()
 
 
-def pop_up_window(w):
+def pop_up_window(w, massage):
     global main_interface
     main_interface = w
     # frame6_path = ASSETS_PATH + "/frame6/"
@@ -254,7 +254,7 @@ def pop_up_window(w):
     # pop_up.iconbitmap(frame6_path + 'prohibition.ico')
     pop_up.geometry(f"{width}x{height}+{x}+{y}")
 
-    pop_up_message = Label(pop_up, text="Max reached.")
+    pop_up_message = Label(pop_up, text=massage)
     close_button = Button(pop_up, borderwidth=1, text="close", command=lambda: close_window(pop_up))
     pop_up_message.place(x=15, y=15)
     close_button.place(x=107.5, y=60, width=35, height=20)
@@ -572,9 +572,9 @@ def get_geometry(width, height):
     return x, y
 
 
-def configure_entry(entry, text=''):
-    if entry.get() == text:
-        entry.delete(0, tk.END)
-    else:
+def configure_entry(entry, select=True):
+    if select:
         entry.selection_range(0, tk.END)
+    else:
+        entry.delete(0, tk.END)
     entry.config(font=active_font)
