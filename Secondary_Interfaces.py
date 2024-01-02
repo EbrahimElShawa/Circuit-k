@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import Canvas, ttk, PhotoImage, Button, Toplevel, Entry, Label, StringVar
+from tkinter import Canvas, ttk, PhotoImage, Button, Toplevel, Entry, Label, StringVar, Tk
 
 from sympy import sympify, symbols
 
@@ -22,7 +22,7 @@ def welcome_screen(main):
     global main_interface
     frame0_path = ASSETS_PATH + '/frame0/'
     main_interface = main
-    width, height = 587, 400
+    width, height = 578, 400
     x, y = get_geometry(width, height)
 
     window = Toplevel(main_interface)
@@ -43,7 +43,7 @@ def welcome_screen(main):
 
     start_button_image = PhotoImage(file=frame0_path + "button_2.png")
     start_button = Button(window, image=start_button_image, borderwidth=0,
-                          command=lambda: window.destroy())
+                          command=lambda: [window.destroy(), main_interface.deiconify()])
     start_button.place(x=442.0, y=346.0, width=118.0, height=44.0)
 
     image_2 = PhotoImage(file=frame0_path + "image_2.png")
@@ -58,9 +58,11 @@ def welcome_screen(main):
     image_5 = PhotoImage(file=frame0_path + "image_5.png")
     canvas.create_image(289.0, 205.0, image=image_5)
 
-    window.transient(main_interface)
-    window.protocol('WM_DELETE_WINDOW', lambda: main_interface.grap_relese())
-    window.grab_set()
+    # start_button.focus_force()
+    window.bind("<Return>", lambda event: start_button.invoke())
+    main_interface.withdraw()
+    window.deiconify()
+    window.resizable(False, False)
     window.mainloop()
 
 
@@ -94,6 +96,7 @@ def credit_window(welcome_window):
     close_button.place(x=414.0, y=359.0, width=68.0, height=33.0)
 
     window.transient(welcome_window)
+    window.resizable(False, False)
     window.mainloop()
 
 
@@ -125,6 +128,7 @@ def set_values_window(w, index, component_name):
         mag_entry.place(x=35, y=48, width=80, height=20)
         add_element_button.place(x=140, y=78, width=121.5, height=32)
 
+        values_window.resizable(False, False)
         values_window.mainloop()
 
     elif component_name == 'AC':
@@ -174,6 +178,7 @@ def set_values_window(w, index, component_name):
         freq_entry.place(x=148, y=35, width=30, height=18)
         ramp_entry.place(x=220, y=35, width=30, height=18)
 
+        values_window.resizable(False, False)
         values_window.mainloop()
 
     elif component_name in ['Idc', 'Vdc']:
@@ -207,6 +212,7 @@ def set_values_window(w, index, component_name):
         mag_entry.place(x=35, y=50, width=70, height=20)
         ramp_entry.place(x=195, y=50, width=60, height=20)
 
+        values_window.resizable(False, False)
         values_window.mainloop()
 
     else:  # Equation
@@ -232,7 +238,7 @@ def set_values_window(w, index, component_name):
         values_window.transient(main_interface)
         initial_comment = 'Equation in param t'
         eq_entry.insert(0, initial_comment)
-        eq_entry.bind('<FocusIn>', lambda event: configure_entry(eq_entry, initial_comment))
+        eq_entry.bind('<FocusIn>', lambda event: configure_entry(eq_entry, False))
         eq_entry.bind('<Return>', lambda event: add_element_button.invoke())
 
         canvas.create_image(71.0, 28.0, image=image_1)
@@ -240,10 +246,11 @@ def set_values_window(w, index, component_name):
         source_type_combobox.place(x=165, y=58, width=70, height=22)
         add_element_button.place(x=125, y=109.0, width=121.5, height=32.)
 
+        values_window.resizable(False, False)
         values_window.mainloop()
 
 
-def pop_up_window(w):
+def pop_up_window(w, massage):
     global main_interface
     main_interface = w
     # frame6_path = ASSETS_PATH + "/frame6/"
@@ -253,14 +260,18 @@ def pop_up_window(w):
     pop_up.title("Warning")
     # pop_up.iconbitmap(frame6_path + 'prohibition.ico')
     pop_up.geometry(f"{width}x{height}+{x}+{y}")
+    canvas = Canvas(pop_up, width=width, height=height, bd=0)
+    canvas.place(x=0, y=0)
 
-    pop_up_message = Label(pop_up, text="Max reached.")
+    pop_up_message = Label(pop_up, text=massage)
     close_button = Button(pop_up, borderwidth=1, text="close", command=lambda: close_window(pop_up))
     pop_up_message.place(x=15, y=15)
-    close_button.place(x=107.5, y=60, width=35, height=20)
+    close_button.place(x=107.5, y=55, width=35, height=20)
 
-    pop_up.transient(main_interface)
     pop_up.focus_set()
+    pop_up.bind("<Return>", lambda event: close_button.invoke())
+    pop_up.resizable(False, False)
+    pop_up.transient(main_interface)
     pop_up.mainloop()
 
 
@@ -298,6 +309,7 @@ def process_window(w):
     step_entry.place(x=120, y=45, width=40, height=18)
     analyse_button.place(x=60, y=73, width=62, height=25)
 
+    domain_window.resizable(False, False)
     domain_window.mainloop()
 
 
@@ -405,6 +417,7 @@ def analyse(domain_window, w, t_max, t_step):
     plot_from_to_button.place(x=237.0, y=280, width=44.0, height=18.0)
     export_button.place(x=85.0, y=310, width=118.0, height=31.0)
 
+    result_window.resizable(False, False)
     result_window.mainloop()
 
 
@@ -436,6 +449,7 @@ def progress_bar_window():
     Label(loading_window, textvariable=percent, bg='#FFFFFF').pack()
     Label(loading_window, textvariable=text, bg='#FFFFFF').pack()
 
+    loading_window.resizable(False, False)
     loading_window.transient(main_interface)
     loading_window.focus_set()
 
@@ -572,9 +586,9 @@ def get_geometry(width, height):
     return x, y
 
 
-def configure_entry(entry, text=''):
-    if entry.get() == text:
-        entry.delete(0, tk.END)
-    else:
+def configure_entry(entry, select=True):
+    if select:
         entry.selection_range(0, tk.END)
+    else:
+        entry.delete(0, tk.END)
     entry.config(font=active_font)

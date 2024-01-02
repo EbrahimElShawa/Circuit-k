@@ -33,7 +33,7 @@ def add_fields(window, canvas, tips, next_button, skip_button):
     skip_tips(canvas, tips, next_button, skip_button)
 
     if widgets_sets_count >= 12:
-        Secondary_Interfaces.pop_up_window(window)
+        Secondary_Interfaces.pop_up_window(window, "Max Elements Reached")
         return
 
     if not widgets_set:
@@ -89,6 +89,7 @@ def validate(window, select=''):
     global widgets_set
 
     if len(widgets_set) == 0:
+        Secondary_Interfaces.pop_up_window(window, "Circuit is empty")
         return
 
     for i, a in enumerate(widgets_set):
@@ -96,16 +97,16 @@ def validate(window, select=''):
 
     for value in Secondary_Interfaces.nodes_list:
         if value[0] == '' or value[1] == '':
-            print("There are empty boxes")
+            Secondary_Interfaces.pop_up_window(window, "Complete Circuit Data")
             return
     for value in Secondary_Interfaces.magnitude_list:
         if value == '':
-            print("There are empty boxes")
+            Secondary_Interfaces.pop_up_window(window, "Complete Circuit Data")
             return
 
     for value in Secondary_Interfaces.ramp_time_list:
         if value == '':
-            print("There are empty boxes")
+            Secondary_Interfaces.pop_up_window(window, "Complete Circuit Data")
             return
 
     create_files.delete_files()
@@ -114,8 +115,10 @@ def validate(window, select=''):
     if select == 'Schema':
         circuitTools.picture()
     else:
+        if not check():
+            Secondary_Interfaces.pop_up_window(window, "Circuit data is not valid")
+            return
         Secondary_Interfaces.max_node()
-
         Secondary_Interfaces.process_window(window)
 
 
@@ -172,3 +175,31 @@ def clear_all():
     Secondary_Interfaces.wave_type_list = []
     Secondary_Interfaces.angle_list = []
 
+
+def check():  # check that nodes from 0 to max_node exist and circuit is connected
+    from collections import defaultdict
+    graph = defaultdict(list)
+    max_node = 0
+    visited = set()
+    for node in Secondary_Interfaces.nodes_list:
+        a, b = int(node[0]), int(node[1])
+        graph[a].append(b)
+        graph[b].append(a)
+        max_node = max(max_node, a, b)
+    bfs(graph, 0, visited)
+    for i in range(max_node + 1):
+        if i not in visited:
+            return False
+    return True
+
+
+def bfs(graph, start, visited):
+    from collections import deque
+    queue = deque([start])
+
+    while queue:
+        current = queue.popleft()
+        if current not in visited:
+            print(current)
+            visited.add(current)
+            queue.extend(neighbor for neighbor in graph[current] if neighbor not in visited)

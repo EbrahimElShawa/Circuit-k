@@ -1,3 +1,4 @@
+import tkinter
 from tkinter import Tk, Canvas, Button, PhotoImage
 import matplotlib.pyplot as plt
 
@@ -5,15 +6,18 @@ import Utilites
 
 ASSETS_PATH = r"./assets/"
 screen_center = [1920 / 2, 1080 / 2]
+main_interface = tkinter.NONE
 
 
 def main():
+    global main_interface
     frame2_path = ASSETS_PATH + 'frame2/'
     window = Tk()
     window.title('Circuit K')
     icon = PhotoImage(file=frame2_path + 'CircuitK.png')
     window.wm_iconphoto(True, icon)
     window.geometry(f"630x550+{int(screen_center[0] - 630/2)}+{int(screen_center[1] - 550/2)}")
+    main_interface = window
     canvas = Canvas(window, bg="#FFFFFF", height=550, width=630, bd=0)
     canvas.place(x=0, y=0)
 
@@ -104,6 +108,7 @@ def main():
 
     window.resizable(False, False)
     from Secondary_Interfaces import welcome_screen
+
     welcome_screen(window)
     window.mainloop()
 
@@ -114,12 +119,12 @@ def start_program(window):
 
 
 def draw_schema():
-    Utilites.validate(None, 'Schema')
+    Utilites.validate(main_interface, 'Schema')
 
 
 def run_circuit():
     from Circuits import Circuit
-    #plt.switch_backend('TkAgg')  # Replace Pycharm Tkinter with Anti-Grain Geometry
+    plt.switch_backend('TkAgg')  # Replace Pycharm Tkinter with Anti-Grain Geometry
     main_circuit = Circuit("assets/net/net.txt")
     return main_circuit
 
