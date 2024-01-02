@@ -3,7 +3,7 @@ DC
 Ramp_up_time
 0
 Magnitude
-10
+5
 Frequency
 -1
 Phase
