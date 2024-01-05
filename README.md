@@ -2,6 +2,13 @@
 
 [Presenation](https://drive.google.com/file/d/1eQAyVKRvuDwLVdyVxhJGxN_QmtyWez5c/view?usp=sharing)
 
+## Contributors
+
+- [Karim Ali](https://github.com/karimali03)
+- [Mohamed Ahmed](https://github.com/mohamed20o03)
+- [Ebrahim Elshawa](https://github.com/EbrahimElShawa)
+- Mohamed Mossad
+
 ## Overview
 
 Circuit K is a Python-based application that provides solutions for AC and DC RLC circuits in the time domain. This is achieved through the use of Modified Nodal Analysis (MNA) and the Trapezoid rule. The application features a user-friendly interface created with tkinter and leverages Matplotlib for plotting and Schemdraw for circuit visualization.
